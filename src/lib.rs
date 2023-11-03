@@ -1,8 +1,5 @@
 //! # Rust float-point in constant context
 //!
-//! Features:
-//! * `no_std`
-//!
 //! work in `stable`:
 //! ```
 //! # use const_soft_float::soft_f32::SoftF32;
@@ -11,7 +8,7 @@
 //! }
 //! ```
 
-#![cfg_attr(feature = "no_std", no_std)]
+#![no_std]
 
 #[macro_export]
 macro_rules! f32 {
