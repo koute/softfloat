@@ -1,13 +1,4 @@
-//! # Rust float-point in constant context
-//!
-//! work in `stable`:
-//! ```
-//! # use const_soft_float::SoftF32;
-//! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     SoftF32::from_native_f32(a).add(SoftF32::from_native_f32(b)).to_native_f32()
-//! }
-//! ```
-
+#![doc = include_str!("../README.md")]
 #![no_std]
 
 #[macro_export]
