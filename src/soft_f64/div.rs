@@ -304,7 +304,8 @@ pub(crate) const fn div(a: F, b: F) -> F {
     let mut x_uq0 = if USE_NATIVE_FULL_ITERATIONS {
         let mut idx = 0;
         while idx < NUMBER_OF_FULL_ITERATIONS {
-            let corr_uq1: u64 = 0_u64.wrapping_sub((x_uq0 * b_uq1) >> F::BITS);
+            let corr_uq1: u64 =
+                0_u64.wrapping_sub((((x_uq0 as u128) * (b_uq1 as u128)) >> F::BITS) as u64);
             x_uq0 = (((x_uq0 as u128) * (corr_uq1 as u128)) >> (F::BITS - 1)) as u64;
             idx += 1;
         }
