@@ -2,7 +2,7 @@
 
 use crate::sf32::{fuzz_test_op, fuzz_test_op_2, fuzz_test_op_2_other};
 use nanorand::Rng;
-use softfloat::SoftF32;
+use softfloat::F32;
 
 mod basic_tests {
     use super::*;
@@ -10,14 +10,14 @@ mod basic_tests {
     #[test]
     fn fuzz_add() {
         fuzz_test_op_2(
-            SoftF32::add,
+            F32::add,
             crate::compiler_builtins::add,
             crate::Argument::First,
             None,
             Some("add"),
         );
         fuzz_test_op_2(
-            SoftF32::add,
+            F32::add,
             crate::compiler_builtins::add,
             crate::Argument::Second,
             None,
@@ -28,14 +28,14 @@ mod basic_tests {
     #[test]
     fn fuzz_sub() {
         fuzz_test_op_2(
-            SoftF32::sub,
+            F32::sub,
             crate::compiler_builtins::sub,
             crate::Argument::First,
             None,
             Some("sub"),
         );
         fuzz_test_op_2(
-            SoftF32::sub,
+            F32::sub,
             crate::compiler_builtins::sub,
             crate::Argument::Second,
             None,
@@ -46,14 +46,14 @@ mod basic_tests {
     #[test]
     fn fuzz_div() {
         fuzz_test_op_2(
-            SoftF32::div,
+            F32::div,
             crate::compiler_builtins::div32,
             crate::Argument::First,
             None,
             Some("div"),
         );
         fuzz_test_op_2(
-            SoftF32::div,
+            F32::div,
             crate::compiler_builtins::div32,
             crate::Argument::Second,
             None,
@@ -64,14 +64,14 @@ mod basic_tests {
     #[test]
     fn fuzz_mul() {
         fuzz_test_op_2(
-            SoftF32::mul,
+            F32::mul,
             crate::compiler_builtins::mul,
             crate::Argument::First,
             None,
             Some("mul"),
         );
         fuzz_test_op_2(
-            SoftF32::mul,
+            F32::mul,
             crate::compiler_builtins::mul,
             crate::Argument::Second,
             None,
@@ -84,7 +84,7 @@ mod basic_tests {
         // TODO move this to a new test generator
         let mut rng = nanorand::WyRand::new();
         for i in i32::MIN..i32::MAX {
-            let fl = SoftF32::from_bits(rng.generate::<u32>());
+            let fl = F32::from_bits(rng.generate::<u32>());
             let res1 = fl.powi(i).to_native_f32();
             let res2 = crate::compiler_builtins::powif(fl.to_native_f32(), i);
             if !match (res1, res2) {
@@ -97,7 +97,7 @@ mod basic_tests {
             }
         }
         fuzz_test_op_2_other(
-            SoftF32::powi,
+            F32::powi,
             crate::compiler_builtins::powif,
             None,
             Some("pow"),
@@ -106,12 +106,12 @@ mod basic_tests {
 
     #[test]
     fn fuzz_round() {
-        fuzz_test_op(SoftF32::round, f32::round, None, Some("round"))
+        fuzz_test_op(F32::round, f32::round, None, Some("round"))
     }
 
     #[test]
     fn fuzz_trunc() {
-        fuzz_test_op(SoftF32::trunc, f32::trunc, None, Some("trunc"));
+        fuzz_test_op(F32::trunc, f32::trunc, None, Some("trunc"));
     }
 }
 
@@ -120,20 +120,20 @@ mod libm_tests {
 
     #[test]
     fn fuzz_sqrt() {
-        fuzz_test_op(SoftF32::sqrt, libm::sqrtf, None, Some("sqrt"))
+        fuzz_test_op(F32::sqrt, libm::sqrtf, None, Some("sqrt"))
     }
 
     #[test]
     fn fuzz_copysign() {
         fuzz_test_op_2(
-            SoftF32::copysign,
+            F32::copysign,
             libm::copysignf,
             crate::Argument::First,
             None,
             Some("copysign"),
         );
         fuzz_test_op_2(
-            SoftF32::copysign,
+            F32::copysign,
             libm::copysignf,
             crate::Argument::Second,
             None,
@@ -143,16 +143,16 @@ mod libm_tests {
 
     #[test]
     fn fuzz_floor() {
-        fuzz_test_op(SoftF32::floor, libm::floorf, None, Some("floor"))
+        fuzz_test_op(F32::floor, libm::floorf, None, Some("floor"))
     }
 
     #[test]
     fn fuzz_sin() {
-        fuzz_test_op(SoftF32::sin, libm::sinf, None, Some("sin"))
+        fuzz_test_op(F32::sin, libm::sinf, None, Some("sin"))
     }
 
     #[test]
     fn fuzz_cos() {
-        fuzz_test_op(SoftF32::cos, libm::cosf, None, Some("cos"))
+        fuzz_test_op(F32::cos, libm::cosf, None, Some("cos"))
     }
 }

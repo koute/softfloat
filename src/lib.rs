@@ -4,7 +4,7 @@
 #[macro_export]
 macro_rules! f32 {
     ($value:expr) => {{
-        const C: $crate::SoftF32 = { $crate::SoftF32::from_native_f32($value) };
+        const C: $crate::F32 = { $crate::F32::from_native_f32($value) };
         C
     }};
 }
@@ -12,7 +12,7 @@ macro_rules! f32 {
 #[macro_export]
 macro_rules! f64 {
     ($value:expr) => {{
-        const C: $crate::SoftF64 = { $crate::SoftF64::from_native_f64($value) };
+        const C: $crate::F64 = { $crate::F64::from_native_f64($value) };
         C
     }};
 }
@@ -21,8 +21,8 @@ mod conv;
 mod soft_f32;
 mod soft_f64;
 
-pub use crate::soft_f32::SoftF32;
-pub use crate::soft_f64::SoftF64;
+pub use crate::soft_f32::F32;
+pub use crate::soft_f64::F64;
 
 const fn abs_diff(a: i32, b: i32) -> u32 {
     a.wrapping_sub(b).wrapping_abs() as u32
@@ -117,13 +117,13 @@ macro_rules! impl_traits {
     };
 }
 
-impl_traits!(crate::soft_f32::SoftF32, f32, from_native_f32);
-impl_traits!(crate::soft_f64::SoftF64, f64, from_native_f64);
+impl_traits!(crate::soft_f32::F32, f32, from_native_f32);
+impl_traits!(crate::soft_f64::F64, f64, from_native_f64);
 
 #[cfg(test)]
 mod tests {
-    use crate::soft_f32::SoftF32;
-    use crate::soft_f64::SoftF64;
+    use crate::soft_f32::F32;
+    use crate::soft_f64::F64;
 
     const RANGE: core::ops::Range<i32> = -1000..1000;
     const F32_FACTOR: f32 = 10.0;
@@ -136,8 +136,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
                 assert_eq!(
-                    SoftF32::from_native_f32(a)
-                        .add(SoftF32::from_native_f32(b))
+                    F32::from_native_f32(a)
+                        .add(F32::from_native_f32(b))
                         .to_native_f32(),
                     a + b
                 );
@@ -152,8 +152,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
                 assert_eq!(
-                    SoftF32::from_native_f32(a)
-                        .sub(SoftF32::from_native_f32(b))
+                    F32::from_native_f32(a)
+                        .sub(F32::from_native_f32(b))
                         .to_native_f32(),
                     a - b
                 );
@@ -168,8 +168,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
                 assert_eq!(
-                    SoftF32::from_native_f32(a)
-                        .mul(SoftF32::from_native_f32(b))
+                    F32::from_native_f32(a)
+                        .mul(F32::from_native_f32(b))
                         .to_native_f32(),
                     a * b
                 );
@@ -183,8 +183,8 @@ mod tests {
             let a = a as f32 * F32_FACTOR;
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
-                let x = SoftF32::from_native_f32(a)
-                    .div(SoftF32::from_native_f32(b))
+                let x = F32::from_native_f32(a)
+                    .div(F32::from_native_f32(b))
                     .to_native_f32();
                 let y = a / b;
                 assert!(x == y || x.is_nan() && y.is_nan())
@@ -199,8 +199,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
                 assert_eq!(
-                    SoftF64::from_native_f64(a)
-                        .sub(SoftF64::from_native_f64(b))
+                    F64::from_native_f64(a)
+                        .sub(F64::from_native_f64(b))
                         .to_native_f64(),
                     a - b
                 );
@@ -215,8 +215,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
                 assert_eq!(
-                    SoftF64::from_native_f64(a)
-                        .sub(SoftF64::from_native_f64(b))
+                    F64::from_native_f64(a)
+                        .sub(F64::from_native_f64(b))
                         .to_native_f64(),
                     a - b
                 );
@@ -231,8 +231,8 @@ mod tests {
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
                 assert_eq!(
-                    SoftF64::from_native_f64(a)
-                        .mul(SoftF64::from_native_f64(b))
+                    F64::from_native_f64(a)
+                        .mul(F64::from_native_f64(b))
                         .to_native_f64(),
                     a * b
                 );
@@ -246,8 +246,8 @@ mod tests {
             let a = a as f64 * F64_FACTOR;
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
-                let x = SoftF64::from_native_f64(a)
-                    .div(SoftF64::from_native_f64(b))
+                let x = F64::from_native_f64(a)
+                    .div(F64::from_native_f64(b))
                     .to_native_f64();
                 let y = a / b;
                 assert!(x == y || x.is_nan() && y.is_nan())

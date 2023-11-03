@@ -1,4 +1,4 @@
-// origin: SoftF64reeBSD /usr/src/lib/msun/src/e_exp.c
+// origin: F64reeBSD /usr/src/lib/msun/src/e_exp.c
 // https://github.com/rust-lang/libm/blob/4c8a973741c014b11ce7f1477693a3e5d4ef9609/src/math/exp.rs
 //
 // ====================================================
@@ -11,7 +11,7 @@
 
 use super::{
     helpers::{gt, lt, scalbn},
-    SoftF64,
+    F64,
 };
 
 // exp(x)
@@ -70,35 +70,35 @@ use super::{
 //          if x >  709.782712893383973096 then exp(x) overflows
 //          if x < -745.133219101941108420 then exp(x) underflows
 
-const HALF: [SoftF64; 2] = [f64!(0.5), f64!(-0.5)];
-const LN2HI: SoftF64 = f64!(6.93147180369123816490e-01); /* 0x3fe62e42, 0xfee00000 */
-const LN2LO: SoftF64 = f64!(1.90821492927058770002e-10); /* 0x3dea39ef, 0x35793c76 */
-const INVLN2: SoftF64 = f64!(1.44269504088896338700e+00); /* 0x3ff71547, 0x652b82fe */
-const P1: SoftF64 = f64!(1.66666666666666019037e-01); /* 0x3FC55555, 0x5555553E */
-const P2: SoftF64 = f64!(-2.77777777770155933842e-03); /* 0xBF66C16C, 0x16BEBD93 */
-const P3: SoftF64 = f64!(6.61375632143793436117e-05); /* 0x3F11566A, 0xAF25DE2C */
-const P4: SoftF64 = f64!(-1.65339022054652515390e-06); /* 0xBEBBBD41, 0xC5D26BF1 */
-const P5: SoftF64 = f64!(4.13813679705723846039e-08); /* 0x3E663769, 0x72BEA4D0 */
+const HALF: [F64; 2] = [f64!(0.5), f64!(-0.5)];
+const LN2HI: F64 = f64!(6.93147180369123816490e-01); /* 0x3fe62e42, 0xfee00000 */
+const LN2LO: F64 = f64!(1.90821492927058770002e-10); /* 0x3dea39ef, 0x35793c76 */
+const INVLN2: F64 = f64!(1.44269504088896338700e+00); /* 0x3ff71547, 0x652b82fe */
+const P1: F64 = f64!(1.66666666666666019037e-01); /* 0x3FC55555, 0x5555553E */
+const P2: F64 = f64!(-2.77777777770155933842e-03); /* 0xBF66C16C, 0x16BEBD93 */
+const P3: F64 = f64!(6.61375632143793436117e-05); /* 0x3F11566A, 0xAF25DE2C */
+const P4: F64 = f64!(-1.65339022054652515390e-06); /* 0xBEBBBD41, 0xC5D26BF1 */
+const P5: F64 = f64!(4.13813679705723846039e-08); /* 0x3E663769, 0x72BEA4D0 */
 
 /// Exponential, base *e* (f64)
 ///
 /// Calculate the exponential of `x`, that is, *e* raised to the power `x`
 /// (where *e* is the base of the natural system of logarithms, approximately 2.71828).
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
-pub(crate) const fn exp(mut x: SoftF64) -> SoftF64 {
-    let x1p1023 = SoftF64::from_bits(0x7fe0000000000000); // 0x1p1023 === 2 ^ 1023
-                                                          // let x1p_149 = SoftF64::from_bits(0x36a0000000000000); // 0x1p-149 === 2 ^ -149
+pub(crate) const fn exp(mut x: F64) -> F64 {
+    let x1p1023 = F64::from_bits(0x7fe0000000000000); // 0x1p1023 === 2 ^ 1023
+                                                      // let x1p_149 = F64::from_bits(0x36a0000000000000); // 0x1p-149 === 2 ^ -149
 
-    let hi: SoftF64;
-    let lo: SoftF64;
-    let c: SoftF64;
-    let xx: SoftF64;
-    let y: SoftF64;
+    let hi: F64;
+    let lo: F64;
+    let c: F64;
+    let xx: F64;
+    let y: F64;
     let k: i32;
     let sign: i32;
     let mut hx: u32;
 
-    let abs_mask = SoftF64::SIGN_MASK - 1;
+    let abs_mask = F64::SIGN_MASK - 1;
 
     let x_bits = x.to_bits();
 
@@ -109,7 +109,7 @@ pub(crate) const fn exp(mut x: SoftF64) -> SoftF64 {
     /* special cases */
     if hx >= 0x4086232b {
         /* if |x| >= 708.39... */
-        if x_bits & abs_mask > SoftF64::EXPONENT_MASK {
+        if x_bits & abs_mask > F64::EXPONENT_MASK {
             return x;
         }
         if gt(x, f64!(709.782712893383973096)) {
@@ -134,8 +134,8 @@ pub(crate) const fn exp(mut x: SoftF64) -> SoftF64 {
         } else {
             k = 1 - sign - sign;
         }
-        hi = x.sub(SoftF64::from_i32(k).mul(LN2HI)); /* k*ln2hi is exact here */
-        lo = SoftF64::from_i32(k).mul(LN2LO);
+        hi = x.sub(F64::from_i32(k).mul(LN2HI)); /* k*ln2hi is exact here */
+        lo = F64::from_i32(k).mul(LN2LO);
         x = hi.sub(lo);
     } else if hx > 0x3e300000 {
         /* if |x| > 2**-28 */

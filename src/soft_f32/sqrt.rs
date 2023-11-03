@@ -4,13 +4,13 @@
  * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
  */
 
-use crate::soft_f32::SoftF32;
+use crate::soft_f32::F32;
 use core::cmp::Ordering;
 
-pub(crate) const fn sqrtf(x: SoftF32) -> SoftF32 {
-    const TINY: SoftF32 = f32!(1.0e-30);
+pub(crate) const fn sqrtf(x: F32) -> F32 {
+    const TINY: F32 = f32!(1.0e-30);
 
-    let mut z: SoftF32;
+    let mut z: F32;
     let sign: i32 = 0x80000000_u32 as i32;
     let mut ix: i32;
     let mut s: i32;
@@ -88,10 +88,10 @@ pub(crate) const fn sqrtf(x: SoftF32) -> SoftF32 {
 
     ix = (q >> 1) + 0x3f000000;
     ix += m << 23;
-    SoftF32::from_bits(ix as u32)
+    F32::from_bits(ix as u32)
 }
 
-const fn gt(l: SoftF32, r: SoftF32) -> bool {
+const fn gt(l: F32, r: F32) -> bool {
     if let Some(ord) = l.cmp(r) {
         match ord {
             Ordering::Greater => true,
@@ -102,7 +102,7 @@ const fn gt(l: SoftF32, r: SoftF32) -> bool {
     }
 }
 
-const fn ge(l: SoftF32, r: SoftF32) -> bool {
+const fn ge(l: F32, r: F32) -> bool {
     if let Some(ord) = l.cmp(r) {
         match ord {
             Ordering::Less => false,
@@ -131,7 +131,7 @@ mod tests {
         assert!(sqrtf(f32!(-1.0)).to_native_f32().is_nan());
         assert!(sqrtf(f32!(NAN)).to_native_f32().is_nan());
         for f in [0.0, -0.0, INFINITY].iter().copied() {
-            assert_eq!(sqrtf(SoftF32::from_native_f32(f)).to_native_f32(), f);
+            assert_eq!(sqrtf(F32::from_native_f32(f)).to_native_f32(), f);
         }
     }
 }

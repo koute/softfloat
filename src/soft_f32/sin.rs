@@ -16,23 +16,23 @@
 
 use core::f64::consts::FRAC_PI_2;
 
-use crate::soft_f64::SoftF64;
+use crate::soft_f64::F64;
 
 use super::{
     helpers::{k_cosf, k_sinf, rem_pio2f},
-    SoftF32,
+    F32,
 };
 
 /* Small multiples of pi/2 rounded to double precision. */
-const S1_PIO2: SoftF64 = f64!(1.).mul(f64!(FRAC_PI_2)); /* 0x3FF921FB, 0x54442D18 */
-const S2_PIO2: SoftF64 = f64!(2.).mul(f64!(FRAC_PI_2)); /* 0x400921FB, 0x54442D18 */
-const S3_PIO2: SoftF64 = f64!(3.).mul(f64!(FRAC_PI_2)); /* 0x4012D97C, 0x7F3321D2 */
-const S4_PIO2: SoftF64 = f64!(4.).mul(f64!(FRAC_PI_2)); /* 0x401921FB, 0x54442D18 */
+const S1_PIO2: F64 = f64!(1.).mul(f64!(FRAC_PI_2)); /* 0x3FF921FB, 0x54442D18 */
+const S2_PIO2: F64 = f64!(2.).mul(f64!(FRAC_PI_2)); /* 0x400921FB, 0x54442D18 */
+const S3_PIO2: F64 = f64!(3.).mul(f64!(FRAC_PI_2)); /* 0x4012D97C, 0x7F3321D2 */
+const S4_PIO2: F64 = f64!(4.).mul(f64!(FRAC_PI_2)); /* 0x401921FB, 0x54442D18 */
 
-pub const fn sinf(x: SoftF32) -> SoftF32 {
+pub const fn sinf(x: F32) -> F32 {
     let x64 = x.to_f64();
 
-    let x1p120 = SoftF32::from_bits(0x7b800000); // 0x1p120f === 2 ^ 120
+    let x1p120 = F32::from_bits(0x7b800000); // 0x1p120f === 2 ^ 120
 
     let mut ix = x.to_bits();
     let sign = (ix >> 31) != 0;
@@ -109,10 +109,7 @@ mod test {
     #[test]
     fn test_basic() {
         for val in [0.0, FRAC_PI_3, FRAC_PI_2, PI, FRAC_2_PI] {
-            assert_eq!(
-                SoftF32::from_native_f32(val).sin().to_native_f32(),
-                val.sin()
-            )
+            assert_eq!(F32::from_native_f32(val).sin().to_native_f32(), val.sin())
         }
     }
 }

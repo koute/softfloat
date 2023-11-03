@@ -1,4 +1,4 @@
-use crate::soft_f64::{helpers::eq, SoftF64};
+use crate::soft_f64::{helpers::eq, F64};
 
 // origin: FreeBSD /usr/src/lib/msun/src/e_rem_pio2.c
 //
@@ -16,40 +16,40 @@ use super::rem_pio2_large;
 
 // #if FLT_EVAL_METHOD==0 || FLT_EVAL_METHOD==1
 // #define EPS DBL_EPSILON
-const EPS: SoftF64 = f64!(2.2204460492503131e-16);
+const EPS: F64 = f64!(2.2204460492503131e-16);
 // #elif FLT_EVAL_METHOD==2
 // #define EPS LDBL_EPSILON
 // #endif
 
 // TODO: Support FLT_EVAL_METHOD?
 
-const TO_INT: SoftF64 = f64!(1.5).div(EPS);
+const TO_INT: F64 = f64!(1.5).div(EPS);
 /// 53 bits of 2/pi
-const INV_PIO2: SoftF64 = f64!(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
+const INV_PIO2: F64 = f64!(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
 /// first 33 bits of pi/2
-const PIO2_1: SoftF64 = f64!(1.57079632673412561417e+00); /* 0x3FF921FB, 0x54400000 */
+const PIO2_1: F64 = f64!(1.57079632673412561417e+00); /* 0x3FF921FB, 0x54400000 */
 /// pi/2 - PIO2_1
-const PIO2_1T: SoftF64 = f64!(6.07710050650619224932e-11); /* 0x3DD0B461, 0x1A626331 */
+const PIO2_1T: F64 = f64!(6.07710050650619224932e-11); /* 0x3DD0B461, 0x1A626331 */
 /// second 33 bits of pi/2
-const PIO2_2: SoftF64 = f64!(6.07710050630396597660e-11); /* 0x3DD0B461, 0x1A600000 */
+const PIO2_2: F64 = f64!(6.07710050630396597660e-11); /* 0x3DD0B461, 0x1A600000 */
 /// pi/2 - (PIO2_1+PIO2_2)
-const PIO2_2T: SoftF64 = f64!(2.02226624879595063154e-21); /* 0x3BA3198A, 0x2E037073 */
+const PIO2_2T: F64 = f64!(2.02226624879595063154e-21); /* 0x3BA3198A, 0x2E037073 */
 /// third 33 bits of pi/2
-const PIO2_3: SoftF64 = f64!(2.02226624871116645580e-21); /* 0x3BA3198A, 0x2E000000 */
+const PIO2_3: F64 = f64!(2.02226624871116645580e-21); /* 0x3BA3198A, 0x2E000000 */
 /// pi/2 - (PIO2_1+PIO2_2+PIO2_3)
-const PIO2_3T: SoftF64 = f64!(8.47842766036889956997e-32); /* 0x397B839A, 0x252049C1 */
+const PIO2_3T: F64 = f64!(8.47842766036889956997e-32); /* 0x397B839A, 0x252049C1 */
 
 // return the remainder of x rem pi/2 in y[0]+y[1]
 // use rem_pio2_large() for large x
 //
 // caller must handle the case when reduction is not needed: |x| ~<= pi/4 */
-pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
-    let x1p24 = SoftF64::from_bits(0x4170000000000000);
+pub(crate) const fn rem_pio2(x: F64) -> (i32, F64, F64) {
+    let x1p24 = F64::from_bits(0x4170000000000000);
 
-    let sign = (SoftF64::to_bits(x) >> 63) as i32;
-    let ix = (SoftF64::to_bits(x) >> 32) as u32 & 0x7fffffff;
+    let sign = (F64::to_bits(x) >> 63) as i32;
+    let ix = (F64::to_bits(x) >> 32) as u32 & 0x7fffffff;
 
-    const fn medium(x: SoftF64, ix: u32) -> (i32, SoftF64, SoftF64) {
+    const fn medium(x: F64, ix: u32) -> (i32, F64, F64) {
         /* rint(x/(pi/2)), Assume round-to-nearest. */
         let tmp = x.mul(INV_PIO2).add(TO_INT);
         // force rounding of tmp to it's storage format on x87 to avoid
@@ -59,7 +59,7 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
         let mut r = x.sub(f_n.mul(PIO2_1));
         let mut w = f_n.mul(PIO2_1T); /* 1st round, good to 85 bits */
         let mut y0 = r.sub(w);
-        let ui = SoftF64::to_bits(y0);
+        let ui = F64::to_bits(y0);
         let ey = (ui >> 52) as i32 & 0x7ff;
         let ex = (ix >> 20) as i32;
         if ex - ey > 16 {
@@ -69,7 +69,7 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
             r = t.sub(w);
             w = f_n.mul(PIO2_2T).sub((t.sub(r)).sub(w));
             y0 = r.sub(w);
-            let ey = (SoftF64::to_bits(y0) >> 52) as i32 & 0x7ff;
+            let ey = (F64::to_bits(y0) >> 52) as i32 & 0x7ff;
             if ex - ey > 49 {
                 /* 3rd round, good to 151 bits, covers all cases */
                 let t = r;
@@ -165,15 +165,15 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
         return (0, y0, y1);
     }
     /* set z = scalbn(|x|,-ilogb(x)+23) */
-    let mut ui = SoftF64::to_bits(x);
+    let mut ui = F64::to_bits(x);
     ui &= (!1) >> 12;
     ui |= (0x3ff + 23) << 52;
-    let mut z = SoftF64::from_bits(ui);
-    let mut tx = [SoftF64::ZERO; 3];
+    let mut z = F64::from_bits(ui);
+    let mut tx = [F64::ZERO; 3];
     {
         let mut i = 0;
         while i < 2 {
-            tx[i] = SoftF64::from_i32(z.to_i32());
+            tx[i] = F64::from_i32(z.to_i32());
             z = (z.sub(tx[i])).mul(x1p24);
             i += 1;
         }
@@ -181,10 +181,10 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
     tx[2] = z;
     /* skip zero terms, first term is non-zero */
     let mut i = 2;
-    while i != 0 && eq(tx[i], SoftF64::ZERO) {
+    while i != 0 && eq(tx[i], F64::ZERO) {
         i -= 1;
     }
-    let ty = [SoftF64::ZERO; 3];
+    let ty = [F64::ZERO; 3];
     let (n, ty) = match i {
         2 => rem_pio2_large(&tx, &ty, ((ix as i32) >> 20) - (0x3ff + 23), 1),
         1 => rem_pio2_large(&[tx[0], tx[1]], &ty, ((ix as i32) >> 20) - (0x3ff + 23), 1),

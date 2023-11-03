@@ -1,4 +1,4 @@
-use crate::soft_f32::SoftF32;
+use crate::soft_f32::F32;
 
 pub(crate) mod helpers;
 
@@ -23,9 +23,9 @@ struct Bits64(u64);
 
 #[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
-pub struct SoftF64(Bits64);
+pub struct F64(Bits64);
 
-impl SoftF64 {
+impl F64 {
     pub const fn from_native_f64(a: f64) -> Self {
         Self(unsafe { core::mem::transmute(a) })
     }
@@ -34,12 +34,12 @@ impl SoftF64 {
         unsafe { core::mem::transmute(self.0) }
     }
 
-    pub const fn from_f32(a: SoftF32) -> Self {
+    pub const fn from_f32(a: F32) -> Self {
         a.to_f64()
     }
 
-    pub const fn to_f32(self) -> SoftF32 {
-        SoftF32::from_f64(self)
+    pub const fn to_f32(self) -> F32 {
+        F32::from_f64(self)
     }
 
     pub const fn from_i32(a: i32) -> Self {
@@ -146,7 +146,7 @@ type SelfSignedInt = i64;
 type SelfExpInt = i16;
 
 #[allow(unused)]
-impl SoftF64 {
+impl F64 {
     const ZERO: Self = f64!(0.0);
     const ONE: Self = f64!(1.0);
     pub(crate) const BITS: u32 = 64;
@@ -200,7 +200,7 @@ impl SoftF64 {
         (self.repr() & Self::EXPONENT_MASK) == 0
     }
 
-    const fn scalbn(self, n: i32) -> SoftF64 {
+    const fn scalbn(self, n: i32) -> F64 {
         helpers::scalbn(self, n)
     }
 }

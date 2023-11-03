@@ -1,9 +1,9 @@
-use super::SoftF32;
+use super::F32;
 
-/// Floor (SoftF32)
+/// Floor (F32)
 ///
 /// Finds the nearest integer less than or equal to `x`.
-pub const fn floor(x: SoftF32) -> SoftF32 {
+pub const fn floor(x: F32) -> F32 {
     let mut ui = x.to_bits();
     let e = (((ui >> 23) as i32) & 0xff) - 0x7f;
 
@@ -15,20 +15,20 @@ pub const fn floor(x: SoftF32) -> SoftF32 {
         if (ui & m) == 0 {
             return x;
         }
-        // force_eval!(x + SoftF32::from_bits(0x7b800000));
+        // force_eval!(x + F32::from_bits(0x7b800000));
         if ui >> 31 != 0 {
             ui += m;
         }
         ui &= !m;
     } else {
-        // force_eval!(x + SoftF32::from_bits(0x7b800000));
+        // force_eval!(x + F32::from_bits(0x7b800000));
         if ui >> 31 == 0 {
             ui = 0;
         } else if ui << 1 != 0 {
             return f32!(-1.0);
         }
     }
-    SoftF32::from_bits(ui)
+    F32::from_bits(ui)
 }
 
 #[cfg(test)]
@@ -51,10 +51,7 @@ mod tests {
             .iter()
             .copied()
         {
-            assert_eq!(
-                SoftF32::from_native_f32(f).floor(),
-                SoftF32::from_native_f32(f)
-            );
+            assert_eq!(F32::from_native_f32(f).floor(), F32::from_native_f32(f));
         }
     }
 }

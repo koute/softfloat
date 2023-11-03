@@ -1,6 +1,6 @@
-use crate::soft_f32::SoftF32;
+use crate::soft_f32::F32;
 
-type F = SoftF32;
+type F = F32;
 
 type FInt = u32;
 

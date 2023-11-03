@@ -1,7 +1,7 @@
 use crate::abs_diff;
-use crate::soft_f64::SoftF64;
+use crate::soft_f64::F64;
 
-type F = SoftF64;
+type F = F64;
 
 pub(crate) const fn pow(a: F, b: i32) -> F {
     let mut a = a;

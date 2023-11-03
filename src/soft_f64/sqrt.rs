@@ -78,10 +78,10 @@
 
 use crate::soft_f64::{
     helpers::{ge, gt},
-    SoftF64,
+    F64,
 };
 
-type F = SoftF64;
+type F = F64;
 
 pub(crate) const fn sqrt(x: F) -> F {
     const TINY: F = f64!(1.0e-300);
@@ -188,12 +188,12 @@ pub(crate) const fn sqrt(x: F) -> F {
     /* use floating add to find out rounding direction */
     if (ix0 as u32 | ix1) != 0 {
         z = f64!(1.0).sub(TINY); /* raise inexact flag */
-        if ge(z, SoftF64::ONE) {
-            z = SoftF64::ONE.add(TINY);
+        if ge(z, F64::ONE) {
+            z = F64::ONE.add(TINY);
             if q1 == 0xffffffff {
                 q1 = 0;
                 q += 1;
-            } else if gt(z, SoftF64::ONE) {
+            } else if gt(z, F64::ONE) {
                 if q1 == 0xfffffffe {
                     q += 1;
                 }
@@ -209,7 +209,7 @@ pub(crate) const fn sqrt(x: F) -> F {
         ix1 |= sign;
     }
     ix0 += m << 20;
-    SoftF64::from_bits((ix0 as u64) << 32 | ix1 as u64)
+    F64::from_bits((ix0 as u64) << 32 | ix1 as u64)
 }
 
 #[cfg(test)]
@@ -219,10 +219,10 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        const SQRT_100: SoftF64 = sqrt(f64!(100.0));
+        const SQRT_100: F64 = sqrt(f64!(100.0));
         assert_eq!(SQRT_100, f64!(10.0));
 
-        const SQRT_4: SoftF64 = sqrt(f64!(4.0));
+        const SQRT_4: F64 = sqrt(f64!(4.0));
         assert_eq!(SQRT_4, f64!(2.0));
     }
 
@@ -233,7 +233,7 @@ mod tests {
         assert!(sqrt(f64!(-1.0)).to_native_f64().is_nan());
         assert!(sqrt(f64!(f64::NAN)).to_native_f64().is_nan());
         for f in [0.0, -0.0, f64::INFINITY].iter().copied() {
-            assert_eq!(sqrt(SoftF64::from_native_f64(f)).to_native_f64(), f);
+            assert_eq!(sqrt(F64::from_native_f64(f)).to_native_f64(), f);
         }
     }
 }

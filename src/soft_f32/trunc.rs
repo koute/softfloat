@@ -1,6 +1,6 @@
-use super::SoftF32;
+use super::F32;
 
-pub(crate) const fn trunc(x: SoftF32) -> SoftF32 {
+pub(crate) const fn trunc(x: F32) -> F32 {
     let mut i: u32 = x.to_bits();
     let mut e: i32 = (i >> 23 & 0xff) as i32 - 0x7f + 9;
     let m: u32;
@@ -16,7 +16,7 @@ pub(crate) const fn trunc(x: SoftF32) -> SoftF32 {
         return x;
     }
     i &= !m;
-    SoftF32::from_bits(i)
+    F32::from_bits(i)
 }
 
 #[cfg(test)]

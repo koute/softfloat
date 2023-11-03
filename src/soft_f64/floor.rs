@@ -1,18 +1,18 @@
 use super::{
     helpers::{eq, gt},
-    SoftF64,
+    F64,
 };
 
-const TOINT: SoftF64 = f64!(1.0).div(f64!(f64::EPSILON));
+const TOINT: F64 = f64!(1.0).div(f64!(f64::EPSILON));
 
 /// Floor (f64)
 ///
 /// Finds the nearest integer less than or equal to `x`.
-pub const fn floor(x: SoftF64) -> SoftF64 {
+pub const fn floor(x: F64) -> F64 {
     let ui = x.to_bits();
     let e = ((ui >> 52) & 0x7ff) as i32;
 
-    if (e >= 0x3ff + 52) || eq(x, SoftF64::ZERO) {
+    if (e >= 0x3ff + 52) || eq(x, F64::ZERO) {
         return x;
     }
     /* y = int(x) - x, where int(x) is an integer neighbor of x */
@@ -26,11 +26,11 @@ pub const fn floor(x: SoftF64) -> SoftF64 {
         return if (ui >> 63) != 0 {
             f64!(-1.0)
         } else {
-            SoftF64::ZERO
+            F64::ZERO
         };
     }
-    if gt(y, SoftF64::ZERO) {
-        x.add(y).sub(SoftF64::ONE)
+    if gt(y, F64::ZERO) {
+        x.add(y).sub(F64::ONE)
     } else {
         x.add(y)
     }
@@ -55,7 +55,7 @@ mod tests {
             .iter()
             .copied()
         {
-            assert_eq!(floor(SoftF64::from_native_f64(f)).to_native_f64(), f);
+            assert_eq!(floor(F64::from_native_f64(f)).to_native_f64(), f);
         }
     }
 }

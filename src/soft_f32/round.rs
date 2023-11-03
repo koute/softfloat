@@ -1,7 +1,7 @@
-use super::SoftF32;
+use super::F32;
 
-pub(crate) const fn round(x: SoftF32) -> SoftF32 {
-    SoftF32::trunc(x.add(SoftF32::copysign(
+pub(crate) const fn round(x: F32) -> F32 {
+    F32::trunc(x.add(F32::copysign(
         f32!(0.5).sub(f32!(0.25).mul(f32!(f32::EPSILON))),
         x,
     )))
@@ -9,11 +9,11 @@ pub(crate) const fn round(x: SoftF32) -> SoftF32 {
 
 #[cfg(test)]
 mod tests {
-    use super::SoftF32;
+    use super::F32;
 
     #[test]
     fn negative_zero() {
-        assert_eq!(SoftF32::round(f32!(-0.0)).to_bits(), f32!(-0.0).to_bits());
+        assert_eq!(F32::round(f32!(-0.0)).to_bits(), f32!(-0.0).to_bits());
     }
 
     #[test]

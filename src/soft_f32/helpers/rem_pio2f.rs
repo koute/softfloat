@@ -15,29 +15,29 @@
  */
 
 use crate::{
-    soft_f32::SoftF32,
-    soft_f64::{helpers::rem_pio2_large, SoftF64},
+    soft_f32::F32,
+    soft_f64::{helpers::rem_pio2_large, F64},
 };
 
-const TOINT: SoftF64 = f64!(1.5).div(f64!(f64::EPSILON));
+const TOINT: F64 = f64!(1.5).div(f64!(f64::EPSILON));
 
 /// 53 bits of 2/pi
-const INV_PIO2: SoftF64 = f64!(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
+const INV_PIO2: F64 = f64!(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
 /// first 25 bits of pi/2
-const PIO2_1: SoftF64 = f64!(1.57079631090164184570e+00); /* 0x3FF921FB, 0x50000000 */
+const PIO2_1: F64 = f64!(1.57079631090164184570e+00); /* 0x3FF921FB, 0x50000000 */
 /// pi/2 - pio2_1
-const PIO2_1T: SoftF64 = f64!(1.58932547735281966916e-08); /* 0x3E5110b4, 0x611A6263 */
+const PIO2_1T: F64 = f64!(1.58932547735281966916e-08); /* 0x3E5110b4, 0x611A6263 */
 
 /// Return the remainder of x rem pi/2 in *y
 ///
 /// use double precision for everything except passing x
 /// use __rem_pio2_large() for large x
 #[cfg_attr(all(test, assert_no_panic), no_panic::no_panic)]
-pub(crate) const fn rem_pio2f(x: SoftF32) -> (i32, SoftF64) {
+pub(crate) const fn rem_pio2f(x: F32) -> (i32, F64) {
     let x64 = x.to_f64();
 
-    let mut tx: [SoftF64; 1] = [f64!(0.0)];
-    let ty: [SoftF64; 1] = [f64!(0.0)];
+    let mut tx: [F64; 1] = [f64!(0.0)];
+    let ty: [F64; 1] = [f64!(0.0)];
 
     let ix = x.to_bits() & 0x7fffffff;
     /* 25+53 bit pi is good enough for medium size */
@@ -56,7 +56,7 @@ pub(crate) const fn rem_pio2f(x: SoftF32) -> (i32, SoftF64) {
     /* scale x into [2^23, 2^24-1] */
     let sign = (x.to_bits() >> 31) != 0;
     let e0 = ((ix >> 23) - (0x7f + 23)) as i32; /* e0 = ilogb(|x|)-23, positive */
-    tx[0] = SoftF32::from_bits(ix - (e0 << 23) as u32).to_f64();
+    tx[0] = F32::from_bits(ix - (e0 << 23) as u32).to_f64();
     let (n, ty) = rem_pio2_large(&tx, &ty, e0, 0);
     if sign {
         return (-n, ty[0].neg());

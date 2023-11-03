@@ -1,7 +1,7 @@
-use crate::soft_f64::SoftF64;
+use crate::soft_f64::F64;
 use core::cmp::Ordering;
 
-type F = SoftF64;
+type F = F64;
 
 type FInt = u64;
 type FSignedInt = i64;

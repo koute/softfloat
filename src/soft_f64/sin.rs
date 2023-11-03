@@ -11,7 +11,7 @@
 
 use super::{
     helpers::{k_cos, k_sin, rem_pio2},
-    SoftF64,
+    F64,
 };
 
 // sin(x)
@@ -43,11 +43,11 @@ use super::{
 //
 // Accuracy:
 //      TRIG(x) returns trig(x) nearly rounded
-pub(crate) const fn sin(x: SoftF64) -> SoftF64 {
-    let x1p120 = SoftF64::from_bits(0x4770000000000000); // 0x1p120f === 2 ^ 120
+pub(crate) const fn sin(x: F64) -> F64 {
+    let x1p120 = F64::from_bits(0x4770000000000000); // 0x1p120f === 2 ^ 120
 
     /* High word of x. */
-    let ix = (SoftF64::to_bits(x) >> 32) as u32 & 0x7fffffff;
+    let ix = (F64::to_bits(x) >> 32) as u32 & 0x7fffffff;
 
     /* |x| ~< pi/4 */
     if ix <= 0x3fe921fb {
@@ -61,7 +61,7 @@ pub(crate) const fn sin(x: SoftF64) -> SoftF64 {
             }
             return x;
         }
-        return k_sin(x, SoftF64::ZERO, 0);
+        return k_sin(x, F64::ZERO, 0);
     }
 
     /* sin(Inf or NaN) is NaN */
@@ -81,12 +81,12 @@ pub(crate) const fn sin(x: SoftF64) -> SoftF64 {
 
 #[cfg(test)]
 mod test {
-    use crate::soft_f64::SoftF64;
+    use crate::soft_f64::F64;
 
     #[test]
     fn test_near_pi() {
-        let x = SoftF64::from_bits(0x400921fb000FD5DD); // 3.141592026217707
-        let sx = SoftF64::from_bits(0x3ea50d15ced1a4a2); // 6.273720864039205e-7
+        let x = F64::from_bits(0x400921fb000FD5DD); // 3.141592026217707
+        let sx = F64::from_bits(0x3ea50d15ced1a4a2); // 6.273720864039205e-7
         let result = x.sin();
         assert_eq!(result, sx);
     }

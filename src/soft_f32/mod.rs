@@ -1,4 +1,4 @@
-use crate::soft_f64::SoftF64;
+use crate::soft_f64::F64;
 
 mod helpers;
 
@@ -21,9 +21,9 @@ struct Bits32(u32);
 
 #[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
-pub struct SoftF32(Bits32);
+pub struct F32(Bits32);
 
-impl SoftF32 {
+impl F32 {
     pub const fn from_native_f32(a: f32) -> Self {
         Self(unsafe { core::mem::transmute(a) })
     }
@@ -32,11 +32,11 @@ impl SoftF32 {
         unsafe { core::mem::transmute(self.0) }
     }
 
-    pub const fn to_f64(self) -> SoftF64 {
+    pub const fn to_f64(self) -> F64 {
         crate::conv::extend(self)
     }
 
-    pub const fn from_f64(a: SoftF64) -> Self {
+    pub const fn from_f64(a: F64) -> Self {
         crate::conv::trunc(a)
     }
 
@@ -118,7 +118,7 @@ type SelfSignedInt = i32;
 type SelfExpInt = i16;
 
 #[allow(unused)]
-impl SoftF32 {
+impl F32 {
     const ZERO: Self = f32!(0.0);
     const ONE: Self = f32!(1.0);
     pub(crate) const BITS: u32 = 32;
@@ -188,6 +188,6 @@ const fn u32_widen_mul(a: u32, b: u32) -> (u32, u32) {
 
 #[test]
 fn test_conversion_f32_to_and_from_u32() {
-    assert_eq!(SoftF32::from_native_f32(1234.0).to_u32(), 1234);
-    assert_eq!(SoftF32::from_u32(1234), SoftF32::from_native_f32(1234.0));
+    assert_eq!(F32::from_native_f32(1234.0).to_u32(), 1234);
+    assert_eq!(F32::from_u32(1234), F32::from_native_f32(1234.0));
 }

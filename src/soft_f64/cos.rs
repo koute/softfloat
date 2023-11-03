@@ -12,7 +12,7 @@
 
 use super::{
     helpers::{k_cos, k_sin, rem_pio2},
-    SoftF64,
+    F64,
 };
 
 // cos(x)
@@ -45,8 +45,8 @@ use super::{
 // Accuracy:
 //      TRIG(x) returns trig(x) nearly rounded
 //
-pub(crate) const fn cos(x: SoftF64) -> SoftF64 {
-    let ix = (SoftF64::to_bits(x) >> 32) as u32 & 0x7fffffff;
+pub(crate) const fn cos(x: F64) -> F64 {
+    let ix = (F64::to_bits(x) >> 32) as u32 & 0x7fffffff;
 
     /* |x| ~< pi/4 */
     if ix <= 0x3fe921fb {
@@ -54,10 +54,10 @@ pub(crate) const fn cos(x: SoftF64) -> SoftF64 {
             /* if x < 2**-27 * sqrt(2) */
             /* raise inexact if x != 0 */
             if x.to_i32() == 0 {
-                return SoftF64::ONE;
+                return F64::ONE;
             }
         }
-        return k_cos(x, SoftF64::ZERO);
+        return k_cos(x, F64::ZERO);
     }
 
     /* cos(Inf or NaN) is NaN */

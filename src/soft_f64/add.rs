@@ -1,6 +1,6 @@
-use crate::soft_f64::SoftF64;
+use crate::soft_f64::F64;
 
-type F = SoftF64;
+type F = F64;
 
 type FInt = u64;
 

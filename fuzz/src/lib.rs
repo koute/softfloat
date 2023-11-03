@@ -15,7 +15,7 @@ mod sf32 {
     use super::Argument;
     use std::fmt::Display;
 
-    use softfloat::SoftF32;
+    use softfloat::F32;
 
     fn is_eq_eps(a: f32, b: f32, eps: Option<f32>) -> bool {
         match eps {
@@ -35,20 +35,20 @@ mod sf32 {
     }
 
     pub fn fuzz_test_op(
-        mut soft: impl FnMut(SoftF32) -> SoftF32,
+        mut soft: impl FnMut(F32) -> F32,
         mut hard: impl FnMut(f32) -> f32,
         eps: Option<f32>,
         name: Option<&str>,
     ) {
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF32::from_native_f32(f32::from_bits(bits)));
+            let soft_res = soft(F32::from_native_f32(f32::from_bits(bits)));
             let hard_res = hard(f32::from_bits(bits));
             if !is_eq_eps(soft_res.to_native_f32(), hard_res, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {}({}) = {} \n\t Ref: {}({}) = {}",
                         name,
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         name,
                         soft_res.to_native_f32(),
                         f32::from_bits(bits),
@@ -57,7 +57,7 @@ mod sf32 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: op({}) = {} \n\t Ref: op({}) = {}",
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         soft_res.to_native_f32(),
                         f32::from_bits(bits),
                         hard_res
@@ -73,7 +73,7 @@ mod sf32 {
     }
 
     pub fn fuzz_test_op_2(
-        mut soft: impl FnMut(SoftF32, SoftF32) -> SoftF32,
+        mut soft: impl FnMut(F32, F32) -> F32,
         mut hard: impl FnMut(f32, f32) -> f32,
         fuzz_arg: Argument,
         eps: Option<f32>,
@@ -84,8 +84,8 @@ mod sf32 {
         let mut soft_rng = WyRand::new_seed(WyRand::new().generate::<u64>());
         let mut hard_rng = soft_rng.clone();
 
-        let mut soft = |x: SoftF32| -> (SoftF32, SoftF32) {
-            let rand = SoftF32::from_native_f32(f32::from_bits(soft_rng.generate::<u32>()));
+        let mut soft = |x: F32| -> (F32, F32) {
+            let rand = F32::from_native_f32(f32::from_bits(soft_rng.generate::<u32>()));
             let ret = match fuzz_arg {
                 Argument::First => soft(x, rand),
                 Argument::Second => soft(rand, x),
@@ -103,14 +103,14 @@ mod sf32 {
         };
 
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF32::from_bits(bits));
+            let soft_res = soft(F32::from_bits(bits));
             let hard_res = hard(f32::from_bits(bits));
             if !is_eq_eps(soft_res.0.to_native_f32(), hard_res.0, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {} {} {} = {} \n\t Ref: {} {} {} = {}",
                         name,
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         name,
                         soft_res.1.to_native_f32(),
                         soft_res.0.to_native_f32(),
@@ -121,7 +121,7 @@ mod sf32 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: ({}, {}) -> {} \n\t Ref: ({}, {}) -> {}",
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         soft_res.1.to_native_f32(),
                         soft_res.0.to_native_f32(),
                         f32::from_bits(bits),
@@ -139,7 +139,7 @@ mod sf32 {
     }
 
     pub fn fuzz_test_op_2_other<T: nanorand::RandomGen<nanorand::WyRand, 8> + Display + Copy>(
-        mut soft: impl FnMut(SoftF32, T) -> SoftF32,
+        mut soft: impl FnMut(F32, T) -> F32,
         mut hard: impl FnMut(f32, T) -> f32,
         eps: Option<f32>,
         name: Option<&str>,
@@ -149,7 +149,7 @@ mod sf32 {
         let mut soft_rng = WyRand::new_seed(WyRand::new().generate::<u64>());
         let mut hard_rng = soft_rng.clone();
 
-        let mut soft = |x: SoftF32| -> (SoftF32, T) {
+        let mut soft = |x: F32| -> (F32, T) {
             let rand = soft_rng.generate::<T>();
             let ret = soft(x, rand);
             (ret, rand)
@@ -162,14 +162,14 @@ mod sf32 {
         };
 
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF32::from_bits(bits));
+            let soft_res = soft(F32::from_bits(bits));
             let hard_res = hard(f32::from_bits(bits));
             if !is_eq_eps(soft_res.0.to_native_f32(), hard_res.0, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {} {} {} = {} \n\t Ref: {} {} {} = {}",
                         name,
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         name,
                         soft_res.1,
                         soft_res.0.to_native_f32(),
@@ -180,7 +180,7 @@ mod sf32 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: ({}, {}) -> {} \n\t Ref: ({}, {}) -> {}",
-                        SoftF32::from_bits(bits).to_native_f32(),
+                        F32::from_bits(bits).to_native_f32(),
                         soft_res.1,
                         soft_res.0.to_native_f32(),
                         f32::from_bits(bits),
@@ -201,7 +201,7 @@ mod sf32 {
 mod sf64 {
     use std::fmt::Display;
 
-    use softfloat::SoftF64;
+    use softfloat::F64;
 
     use crate::Argument;
 
@@ -229,20 +229,20 @@ mod sf64 {
     }
 
     pub fn fuzz_test_op(
-        mut soft: impl FnMut(SoftF64) -> SoftF64,
+        mut soft: impl FnMut(F64) -> F64,
         mut hard: impl FnMut(f64) -> f64,
         eps: Option<f64>,
         name: Option<&str>,
     ) {
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF64::from_native_f64(f64::from_bits(bits)));
+            let soft_res = soft(F64::from_native_f64(f64::from_bits(bits)));
             let hard_res = hard(f64::from_bits(bits));
             if !is_eq_eps(soft_res.to_native_f64(), hard_res, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {}({}) = {} \n\t Ref: {}({}) = {}",
                         name,
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         name,
                         soft_res.to_native_f64(),
                         f64::from_bits(bits),
@@ -251,7 +251,7 @@ mod sf64 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: op({}) = {} \n\t Ref: op({}) = {}",
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         soft_res.to_native_f64(),
                         f64::from_bits(bits),
                         hard_res
@@ -267,7 +267,7 @@ mod sf64 {
     }
 
     pub fn fuzz_test_op_2(
-        mut soft: impl FnMut(SoftF64, SoftF64) -> SoftF64,
+        mut soft: impl FnMut(F64, F64) -> F64,
         mut hard: impl FnMut(f64, f64) -> f64,
         fuzz_arg: Argument,
         eps: Option<f64>,
@@ -278,8 +278,8 @@ mod sf64 {
         let mut soft_rng = WyRand::new_seed(WyRand::new().generate::<u64>());
         let mut hard_rng = soft_rng.clone();
 
-        let mut soft = |x: SoftF64| -> (SoftF64, SoftF64) {
-            let rand = SoftF64::from_native_f64(f64::from_bits(soft_rng.generate::<u64>()));
+        let mut soft = |x: F64| -> (F64, F64) {
+            let rand = F64::from_native_f64(f64::from_bits(soft_rng.generate::<u64>()));
             let ret = match fuzz_arg {
                 Argument::First => soft(x, rand),
                 Argument::Second => soft(rand, x),
@@ -297,14 +297,14 @@ mod sf64 {
         };
 
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF64::from_bits(bits));
+            let soft_res = soft(F64::from_bits(bits));
             let hard_res = hard(f64::from_bits(bits));
             if !is_eq_eps(soft_res.0.to_native_f64(), hard_res.0, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {} {} {} = {} \n\t Ref: {} {} {} = {}",
                         name,
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         name,
                         soft_res.1.to_native_f64(),
                         soft_res.0.to_native_f64(),
@@ -315,7 +315,7 @@ mod sf64 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: ({}, {}) -> {} \n\t Ref: ({}, {}) -> {}",
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         soft_res.1.to_native_f64(),
                         soft_res.0.to_native_f64(),
                         f64::from_bits(bits),
@@ -333,7 +333,7 @@ mod sf64 {
     }
 
     pub fn fuzz_test_op_2_other<T: nanorand::RandomGen<nanorand::WyRand, 8> + Display + Copy>(
-        mut soft: impl FnMut(SoftF64, T) -> SoftF64,
+        mut soft: impl FnMut(F64, T) -> F64,
         mut reference: impl FnMut(f64, T) -> f64,
         eps: Option<f64>,
         name: Option<&str>,
@@ -343,7 +343,7 @@ mod sf64 {
         let mut soft_rng = WyRand::new_seed(WyRand::new().generate::<u64>());
         let mut hard_rng = soft_rng.clone();
 
-        let mut soft = |x: SoftF64| -> (SoftF64, T) {
+        let mut soft = |x: F64| -> (F64, T) {
             let rand = soft_rng.generate::<T>();
             let ret = soft(x, rand);
             (ret, rand)
@@ -356,14 +356,14 @@ mod sf64 {
         };
 
         for (index, bits) in fuzz_iter().enumerate() {
-            let soft_res = soft(SoftF64::from_bits(bits));
+            let soft_res = soft(F64::from_bits(bits));
             let hard_res = hard(f64::from_bits(bits));
             if !is_eq_eps(soft_res.0.to_native_f64(), hard_res.0, eps) {
                 match name {
                     Some(name) => eprintln!(
                         "NE Result for {}: \n\t Soft: {} {} {} = {} \n\t Ref: {} {} {} = {}",
                         name,
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         name,
                         soft_res.1,
                         soft_res.0.to_native_f64(),
@@ -374,7 +374,7 @@ mod sf64 {
                     ),
                     None => eprintln!(
                         "NE Result: \n\t Soft: ({}, {}) -> {} \n\t Ref: ({}, {}) -> {}",
-                        SoftF64::from_bits(bits).to_native_f64(),
+                        F64::from_bits(bits).to_native_f64(),
                         soft_res.1,
                         soft_res.0.to_native_f64(),
                         f64::from_bits(bits),
