@@ -15,13 +15,6 @@ pub mod sin;
 pub mod sqrt;
 pub mod trunc;
 
-#[cfg(feature = "const_trait_impl")]
-pub mod const_impl_trait;
-
-#[cfg(feature = "const_trait_impl")]
-pub use const_impl_trait as impl_trait;
-
-#[cfg(not(feature = "const_trait_impl"))]
 pub mod impl_trait;
 
 #[derive(Default, Copy, Clone, Debug)]

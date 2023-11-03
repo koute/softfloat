@@ -2,8 +2,6 @@
 //!
 //! Features:
 //! * `no_std`
-//! * `const_trait_impl`
-//! * `const_mut_refs`
 //!
 //! work in `stable`:
 //! ```
@@ -12,42 +10,8 @@
 //!     SoftF32::from_native_f32(a).add(SoftF32::from_native_f32(b)).to_native_f32()
 //! }
 //! ```
-//!
-//!
-//! with `const_trait_impl` usage (requires `nightly`):
-//! ```
-//! # cfg_if::cfg_if! {
-//! # if #[cfg(nightly)] {
-//! # #![feature(const_trait_impl)]
-//! # use const_soft_float::soft_f32::SoftF32;
-//! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     (SoftF32::from_native_f32(a) + SoftF32::from_native_f32(b)).to_native_f32()
-//! }
-//! # }
-//! # }
-//! ```
-//!
-//! with `const_mut_refs` usage (requires `nightly`):
-//! ```
-//! # cfg_if::cfg_if! {
-//! # if #[cfg(nightly)] {
-//! # #![feature(const_trait_impl)]
-//! # #![feature(const_mut_refs)]
-//! # use const_soft_float::soft_f32::SoftF32;
-//! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     let mut x = SoftF32::from_native_f32(a);
-//!     x += SoftF32::from_native_f32(b);
-//!     x.to_native_f32()
-//! }
-//! # }
-//! # }
-//! ```
-//!
-//!
 
 #![cfg_attr(feature = "no_std", no_std)]
-#![cfg_attr(feature = "const_trait_impl", feature(const_trait_impl))]
-#![cfg_attr(feature = "const_mut_refs", feature(const_mut_refs))]
 
 #[macro_export]
 macro_rules! f32 {
