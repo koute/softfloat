@@ -31,10 +31,16 @@ const fn abs_diff(a: i32, b: i32) -> u32 {
 }
 
 macro_rules! impl_traits {
-    ($ty:ty, $native_ty:ty, $from_native:ident) => {
+    ($ty:ty, $native_ty:ty, $from_native:ident, $to_native:ident) => {
         impl From<$native_ty> for $ty {
             fn from(value: $native_ty) -> Self {
                 Self::$from_native(value)
+            }
+        }
+
+        impl From<$ty> for $native_ty {
+            fn from(value: $ty) -> Self {
+                value.$to_native()
             }
         }
 
@@ -119,8 +125,8 @@ macro_rules! impl_traits {
     };
 }
 
-impl_traits!(crate::soft_f32::F32, f32, from_native_f32);
-impl_traits!(crate::soft_f64::F64, f64, from_native_f64);
+impl_traits!(crate::soft_f32::F32, f32, from_native_f32, to_native_f32);
+impl_traits!(crate::soft_f64::F64, f64, from_native_f64, to_native_f64);
 
 #[cfg(test)]
 mod tests {
