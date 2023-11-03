@@ -208,3 +208,40 @@ pub const fn f64_to_i32(f: SoftF64) -> i32 {
         0
     }
 }
+
+// Source: https://github.com/rust-lang/compiler-builtins/blob/3dea633a80d32da75e923a940d16ce98cce74822/src/float/conv.rs#L8C1-L18C6
+const fn u32_to_f32_bits(i: u32) -> u32 {
+    if i == 0 {
+        return 0;
+    }
+    let n = i.leading_zeros();
+    let a = (i << n) >> 8; // Significant bits, with bit 24 still in tact.
+    let b = (i << n) << 24; // Insignificant bits, only relevant for rounding.
+    let m = a + ((b - (b >> 31 & !a)) >> 31); // Add one when we need to round up. Break ties to even.
+    let e = 157 - n; // Exponent plus 127, minus one.
+    (e << 23) + m // + not |, so the mantissa can overflow into the exponent.
+}
+
+pub const fn u32_to_f32(i: u32) -> SoftF32 {
+    SoftF32::from_bits(u32_to_f32_bits(i))
+}
+
+// Source: https://github.com/rust-lang/compiler-builtins/blob/3dea633a80d32da75e923a940d16ce98cce74822/src/float/conv.rs#L148C1-L161C6
+pub const fn f32_to_u32(f: SoftF32) -> u32 {
+    let fbits = f.to_bits();
+    if fbits < 127 << 23 {
+        // >= 0, < 1
+        0
+    } else if fbits < 159 << 23 {
+        // >= 1, < max
+        let m = 1 << 31 | fbits << 8; // Mantissa and the implicit 1-bit.
+        let s = 158 - (fbits >> 23); // Shift based on the exponent and bias.
+        m >> s
+    } else if fbits <= 255 << 23 {
+        // >= max (incl. inf)
+        u32::MAX
+    } else {
+        // Negative or NaN
+        0
+    }
+}

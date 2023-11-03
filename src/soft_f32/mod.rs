@@ -40,6 +40,14 @@ impl SoftF32 {
         crate::conv::trunc(a)
     }
 
+    pub const fn to_u32(self) -> u32 {
+        crate::conv::f32_to_u32(self)
+    }
+
+    pub const fn from_u32(a: u32) -> Self {
+        crate::conv::u32_to_f32(a)
+    }
+
     pub const fn from_bits(a: u32) -> Self {
         Self(Bits32(a))
     }
@@ -176,4 +184,10 @@ const fn u64_hi(x: u64) -> u32 {
 const fn u32_widen_mul(a: u32, b: u32) -> (u32, u32) {
     let x = u64::wrapping_mul(a as _, b as _);
     (u64_lo(x), u64_hi(x))
+}
+
+#[test]
+fn test_conversion_f32_to_and_from_u32() {
+    assert_eq!(SoftF32::from_native_f32(1234.0).to_u32(), 1234);
+    assert_eq!(SoftF32::from_u32(1234), SoftF32::from_native_f32(1234.0));
 }
