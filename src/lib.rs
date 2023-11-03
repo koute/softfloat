@@ -2,7 +2,7 @@
 //!
 //! work in `stable`:
 //! ```
-//! # use const_soft_float::soft_f32::SoftF32;
+//! # use const_soft_float::SoftF32;
 //! const fn const_f32_add(a: f32, b: f32) -> f32 {
 //!     SoftF32::from_native_f32(a).add(SoftF32::from_native_f32(b)).to_native_f32()
 //! }
@@ -13,7 +13,7 @@
 #[macro_export]
 macro_rules! f32 {
     ($value:expr) => {{
-        const C: $crate::soft_f32::SoftF32 = { $crate::soft_f32::SoftF32::from_native_f32($value) };
+        const C: $crate::SoftF32 = { $crate::SoftF32::from_native_f32($value) };
         C
     }};
 }
@@ -21,15 +21,17 @@ macro_rules! f32 {
 #[macro_export]
 macro_rules! f64 {
     ($value:expr) => {{
-        const C: $crate::soft_f64::SoftF64 = { $crate::soft_f64::SoftF64::from_native_f64($value) };
+        const C: $crate::SoftF64 = { $crate::SoftF64::from_native_f64($value) };
         C
     }};
 }
 
-pub mod soft_f32;
-pub mod soft_f64;
-
 mod conv;
+mod soft_f32;
+mod soft_f64;
+
+pub use crate::soft_f32::SoftF32;
+pub use crate::soft_f64::SoftF64;
 
 const fn abs_diff(a: i32, b: i32) -> u32 {
     a.wrapping_sub(b).wrapping_abs() as u32
