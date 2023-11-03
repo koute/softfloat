@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![no_std]
 
+/// Creates a new [`F32`] from a floating-point literal.
 #[macro_export]
 macro_rules! f32 {
     ($value:expr) => {{
@@ -9,6 +10,7 @@ macro_rules! f32 {
     }};
 }
 
+/// Creates a new [`F64`] from a floating-point literal.
 #[macro_export]
 macro_rules! f64 {
     ($value:expr) => {{

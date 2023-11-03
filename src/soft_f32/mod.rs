@@ -19,6 +19,7 @@ pub mod trunc;
 #[repr(transparent)]
 struct Bits32(u32);
 
+/// A pure software implementation of `f32`.
 #[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
 pub struct F32(Bits32);

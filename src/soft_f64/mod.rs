@@ -21,6 +21,7 @@ pub mod trunc;
 #[repr(transparent)]
 struct Bits64(u64);
 
+/// A pure software implementation of `f64`.
 #[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
 pub struct F64(Bits64);
