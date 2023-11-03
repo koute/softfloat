@@ -90,6 +90,14 @@ macro_rules! impl_traits {
             }
         }
 
+        impl core::ops::Neg for $ty {
+            type Output = Self;
+
+            fn neg(self) -> Self::Output {
+                Self::neg(self)
+            }
+        }
+
         impl core::ops::AddAssign for $ty {
             fn add_assign(&mut self, rhs: Self) {
                 *self = *self + rhs;
@@ -99,6 +107,18 @@ macro_rules! impl_traits {
         impl core::ops::SubAssign for $ty {
             fn sub_assign(&mut self, rhs: Self) {
                 *self = *self - rhs;
+            }
+        }
+
+        impl core::ops::MulAssign for $ty {
+            fn mul_assign(&mut self, rhs: Self) {
+                *self = *self * rhs;
+            }
+        }
+
+        impl core::ops::DivAssign for $ty {
+            fn div_assign(&mut self, rhs: Self) {
+                *self = *self / rhs;
             }
         }
     };
