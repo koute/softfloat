@@ -184,10 +184,8 @@ pub(crate) const fn add(a: F, b: F) -> F {
 
 #[cfg(test)]
 mod test {
-    use crate::soft_f32::SoftF32;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF32(1.0).add(SoftF32(1.0)).0, 2.0)
+        assert_eq!(f32!(1.0).add(f32!(1.0)), f32!(2.0))
     }
 }

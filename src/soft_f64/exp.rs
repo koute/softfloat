@@ -70,15 +70,15 @@ use super::{
 //          if x >  709.782712893383973096 then exp(x) overflows
 //          if x < -745.133219101941108420 then exp(x) underflows
 
-const HALF: [SoftF64; 2] = [SoftF64(0.5), SoftF64(-0.5)];
-const LN2HI: SoftF64 = SoftF64(6.93147180369123816490e-01); /* 0x3fe62e42, 0xfee00000 */
-const LN2LO: SoftF64 = SoftF64(1.90821492927058770002e-10); /* 0x3dea39ef, 0x35793c76 */
-const INVLN2: SoftF64 = SoftF64(1.44269504088896338700e+00); /* 0x3ff71547, 0x652b82fe */
-const P1: SoftF64 = SoftF64(1.66666666666666019037e-01); /* 0x3FC55555, 0x5555553E */
-const P2: SoftF64 = SoftF64(-2.77777777770155933842e-03); /* 0xBF66C16C, 0x16BEBD93 */
-const P3: SoftF64 = SoftF64(6.61375632143793436117e-05); /* 0x3F11566A, 0xAF25DE2C */
-const P4: SoftF64 = SoftF64(-1.65339022054652515390e-06); /* 0xBEBBBD41, 0xC5D26BF1 */
-const P5: SoftF64 = SoftF64(4.13813679705723846039e-08); /* 0x3E663769, 0x72BEA4D0 */
+const HALF: [SoftF64; 2] = [f64!(0.5), f64!(-0.5)];
+const LN2HI: SoftF64 = f64!(6.93147180369123816490e-01); /* 0x3fe62e42, 0xfee00000 */
+const LN2LO: SoftF64 = f64!(1.90821492927058770002e-10); /* 0x3dea39ef, 0x35793c76 */
+const INVLN2: SoftF64 = f64!(1.44269504088896338700e+00); /* 0x3ff71547, 0x652b82fe */
+const P1: SoftF64 = f64!(1.66666666666666019037e-01); /* 0x3FC55555, 0x5555553E */
+const P2: SoftF64 = f64!(-2.77777777770155933842e-03); /* 0xBF66C16C, 0x16BEBD93 */
+const P3: SoftF64 = f64!(6.61375632143793436117e-05); /* 0x3F11566A, 0xAF25DE2C */
+const P4: SoftF64 = f64!(-1.65339022054652515390e-06); /* 0xBEBBBD41, 0xC5D26BF1 */
+const P5: SoftF64 = f64!(4.13813679705723846039e-08); /* 0x3E663769, 0x72BEA4D0 */
 
 /// Exponential, base *e* (f64)
 ///
@@ -112,15 +112,15 @@ pub(crate) const fn exp(mut x: SoftF64) -> SoftF64 {
         if x_bits & abs_mask > SoftF64::EXPONENT_MASK {
             return x;
         }
-        if gt(x, SoftF64(709.782712893383973096)) {
+        if gt(x, f64!(709.782712893383973096)) {
             /* overflow if x!=inf */
             x = x.mul(x1p1023);
             return x;
         }
-        if lt(x, SoftF64(-708.39641853226410622)) {
+        if lt(x, f64!(-708.39641853226410622)) {
             /* underflow if x!=-inf */
-            if lt(x, SoftF64(-745.13321910194110842)) {
-                return SoftF64(0.);
+            if lt(x, f64!(-745.13321910194110842)) {
+                return f64!(0.);
             }
         }
     }
@@ -130,27 +130,27 @@ pub(crate) const fn exp(mut x: SoftF64) -> SoftF64 {
         /* if |x| > 0.5 ln2 */
         if hx >= 0x3ff0a2b2 {
             /* if |x| >= 1.5 ln2 */
-            k = INVLN2.mul(x).add(HALF[sign as usize]).0 as i32;
+            k = INVLN2.mul(x).add(HALF[sign as usize]).to_i32();
         } else {
             k = 1 - sign - sign;
         }
-        hi = x.sub(SoftF64(k as f64).mul(LN2HI)); /* k*ln2hi is exact here */
-        lo = SoftF64(k as f64).mul(LN2LO);
+        hi = x.sub(SoftF64::from_i32(k).mul(LN2HI)); /* k*ln2hi is exact here */
+        lo = SoftF64::from_i32(k).mul(LN2LO);
         x = hi.sub(lo);
     } else if hx > 0x3e300000 {
         /* if |x| > 2**-28 */
         k = 0;
         hi = x;
-        lo = SoftF64(0.);
+        lo = f64!(0.);
     } else {
         /* inexact if x!=0 */
-        return SoftF64(1.).add(x);
+        return f64!(1.).add(x);
     }
 
     /* x is now in primary range */
     xx = x.mul(x);
     c = x.sub(xx.mul(P1.add(xx.mul(P2.add(xx.mul(P3.add(xx.mul(P4.add(xx.mul(P5))))))))));
-    y = SoftF64(1.).add(x.mul(c).div(SoftF64(2.).sub(c)).sub(lo).add(hi));
+    y = f64!(1.).add(x.mul(c).div(f64!(2.).sub(c)).sub(lo).add(hi));
     if k == 0 {
         y
     } else {

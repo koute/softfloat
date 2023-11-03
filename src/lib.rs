@@ -9,7 +9,7 @@
 //! ```
 //! # use const_soft_float::soft_f32::SoftF32;
 //! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     SoftF32(a).add(SoftF32(b)).to_f32()
+//!     SoftF32::from_native_f32(a).add(SoftF32::from_native_f32(b)).to_native_f32()
 //! }
 //! ```
 //!
@@ -21,7 +21,7 @@
 //! # #![feature(const_trait_impl)]
 //! # use const_soft_float::soft_f32::SoftF32;
 //! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     (SoftF32(a) + SoftF32(b)).to_f32()
+//!     (SoftF32::from_native_f32(a) + SoftF32::from_native_f32(b)).to_native_f32()
 //! }
 //! # }
 //! # }
@@ -35,9 +35,9 @@
 //! # #![feature(const_mut_refs)]
 //! # use const_soft_float::soft_f32::SoftF32;
 //! const fn const_f32_add(a: f32, b: f32) -> f32 {
-//!     let mut x = SoftF32(a);
-//!     x += SoftF32(b);
-//!     x.to_f32()
+//!     let mut x = SoftF32::from_native_f32(a);
+//!     x += SoftF32::from_native_f32(b);
+//!     x.to_native_f32()
 //! }
 //! # }
 //! # }
@@ -49,8 +49,26 @@
 #![cfg_attr(feature = "const_trait_impl", feature(const_trait_impl))]
 #![cfg_attr(feature = "const_mut_refs", feature(const_mut_refs))]
 
+#[macro_export]
+macro_rules! f32 {
+    ($value:expr) => {{
+        const C: $crate::soft_f32::SoftF32 = { $crate::soft_f32::SoftF32::from_native_f32($value) };
+        C
+    }};
+}
+
+#[macro_export]
+macro_rules! f64 {
+    ($value:expr) => {{
+        const C: $crate::soft_f64::SoftF64 = { $crate::soft_f64::SoftF64::from_native_f64($value) };
+        C
+    }};
+}
+
 pub mod soft_f32;
 pub mod soft_f64;
+
+mod conv;
 
 const fn abs_diff(a: i32, b: i32) -> u32 {
     a.wrapping_sub(b).wrapping_abs() as u32
@@ -71,7 +89,12 @@ mod tests {
             let a = a as f32 * F32_FACTOR;
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
-                assert_eq!(SoftF32(a).add(SoftF32(b)).0, a + b);
+                assert_eq!(
+                    SoftF32::from_native_f32(a)
+                        .add(SoftF32::from_native_f32(b))
+                        .to_native_f32(),
+                    a + b
+                );
             }
         }
     }
@@ -82,7 +105,12 @@ mod tests {
             let a = a as f32 * F32_FACTOR;
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
-                assert_eq!(SoftF32(a).sub(SoftF32(b)).0, a - b);
+                assert_eq!(
+                    SoftF32::from_native_f32(a)
+                        .sub(SoftF32::from_native_f32(b))
+                        .to_native_f32(),
+                    a - b
+                );
             }
         }
     }
@@ -93,7 +121,12 @@ mod tests {
             let a = a as f32 * F32_FACTOR;
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
-                assert_eq!(SoftF32(a).mul(SoftF32(b)).0, a * b);
+                assert_eq!(
+                    SoftF32::from_native_f32(a)
+                        .mul(SoftF32::from_native_f32(b))
+                        .to_native_f32(),
+                    a * b
+                );
             }
         }
     }
@@ -104,7 +137,9 @@ mod tests {
             let a = a as f32 * F32_FACTOR;
             for b in RANGE {
                 let b = b as f32 * F32_FACTOR;
-                let x = SoftF32(a).div(SoftF32(b)).0;
+                let x = SoftF32::from_native_f32(a)
+                    .div(SoftF32::from_native_f32(b))
+                    .to_native_f32();
                 let y = a / b;
                 assert!(x == y || x.is_nan() && y.is_nan())
             }
@@ -117,7 +152,12 @@ mod tests {
             let a = a as f64 * F64_FACTOR;
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
-                assert_eq!(SoftF64(a).sub(SoftF64(b)).0, a - b);
+                assert_eq!(
+                    SoftF64::from_native_f64(a)
+                        .sub(SoftF64::from_native_f64(b))
+                        .to_native_f64(),
+                    a - b
+                );
             }
         }
     }
@@ -128,7 +168,12 @@ mod tests {
             let a = a as f64 * F64_FACTOR;
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
-                assert_eq!(SoftF64(a).sub(SoftF64(b)).0, a - b);
+                assert_eq!(
+                    SoftF64::from_native_f64(a)
+                        .sub(SoftF64::from_native_f64(b))
+                        .to_native_f64(),
+                    a - b
+                );
             }
         }
     }
@@ -139,7 +184,12 @@ mod tests {
             let a = a as f64 * F64_FACTOR;
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
-                assert_eq!(SoftF64(a).mul(SoftF64(b)).0, a * b);
+                assert_eq!(
+                    SoftF64::from_native_f64(a)
+                        .mul(SoftF64::from_native_f64(b))
+                        .to_native_f64(),
+                    a * b
+                );
             }
         }
     }
@@ -150,7 +200,9 @@ mod tests {
             let a = a as f64 * F64_FACTOR;
             for b in RANGE {
                 let b = b as f64 * F64_FACTOR;
-                let x = SoftF64(a).div(SoftF64(b)).0;
+                let x = SoftF64::from_native_f64(a)
+                    .div(SoftF64::from_native_f64(b))
+                    .to_native_f64();
                 let y = a / b;
                 assert!(x == y || x.is_nan() && y.is_nan())
             }

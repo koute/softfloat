@@ -185,10 +185,8 @@ pub(crate) const fn mul(a: F, b: F) -> F {
 
 #[cfg(test)]
 mod test {
-    use crate::soft_f32::SoftF32;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF32(2.0).mul(SoftF32(2.0)).0, 4.0)
+        assert_eq!(f32!(2.0).mul(f32!(2.0)), f32!(4.0))
     }
 }

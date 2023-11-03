@@ -24,13 +24,13 @@ use super::{
 };
 
 /* Small multiples of pi/2 rounded to double precision. */
-const C1_PIO2: SoftF64 = SoftF64(1.).mul(SoftF64(FRAC_PI_2)); /* 0x3FF921FB, 0x54442D18 */
-const C2_PIO2: SoftF64 = SoftF64(2.).mul(SoftF64(FRAC_PI_2)); /* 0x400921FB, 0x54442D18 */
-const C3_PIO2: SoftF64 = SoftF64(3.).mul(SoftF64(FRAC_PI_2)); /* 0x4012D97C, 0x7F3321D2 */
-const C4_PIO2: SoftF64 = SoftF64(4.).mul(SoftF64(FRAC_PI_2)); /* 0x401921FB, 0x54442D18 */
+const C1_PIO2: SoftF64 = f64!(1.).mul(f64!(FRAC_PI_2)); /* 0x3FF921FB, 0x54442D18 */
+const C2_PIO2: SoftF64 = f64!(2.).mul(f64!(FRAC_PI_2)); /* 0x400921FB, 0x54442D18 */
+const C3_PIO2: SoftF64 = f64!(3.).mul(f64!(FRAC_PI_2)); /* 0x4012D97C, 0x7F3321D2 */
+const C4_PIO2: SoftF64 = f64!(4.).mul(f64!(FRAC_PI_2)); /* 0x401921FB, 0x54442D18 */
 
 pub const fn cos(x: SoftF32) -> SoftF32 {
-    let x64 = SoftF64(x.0 as f64);
+    let x64 = x.to_f64();
 
     let x1p120 = SoftF32::from_bits(0x7b800000); // 0x1p120f === 2 ^ 120
 
@@ -44,7 +44,7 @@ pub const fn cos(x: SoftF32) -> SoftF32 {
             /* |x| < 2**-12 */
             /* raise inexact if x != 0 */
             let _ = x.add(x1p120);
-            return SoftF32(1.0);
+            return f32!(1.0);
         }
         return k_cosf(x64);
     }

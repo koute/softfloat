@@ -62,15 +62,15 @@ use super::SoftF64;
 // compiler will convert from decimal to binary accurately enough
 // to produce the hexadecimal values shown.
 
-const LN2_HI: SoftF64 = SoftF64(6.93147180369123816490e-01); /* 3fe62e42 fee00000 */
-const LN2_LO: SoftF64 = SoftF64(1.90821492927058770002e-10); /* 3dea39ef 35793c76 */
-const LG1: SoftF64 = SoftF64(6.666666666666735130e-01); /* 3FE55555 55555593 */
-const LG2: SoftF64 = SoftF64(3.999999999940941908e-01); /* 3FD99999 9997FA04 */
-const LG3: SoftF64 = SoftF64(2.857142874366239149e-01); /* 3FD24924 94229359 */
-const LG4: SoftF64 = SoftF64(2.222219843214978396e-01); /* 3FCC71C5 1D8E78AF */
-const LG5: SoftF64 = SoftF64(1.818357216161805012e-01); /* 3FC74664 96CB03DE */
-const LG6: SoftF64 = SoftF64(1.531383769920937332e-01); /* 3FC39A09 D078C69F */
-const LG7: SoftF64 = SoftF64(1.479819860511658591e-01); /* 3FC2F112 DF3E5244 */
+const LN2_HI: SoftF64 = f64!(6.93147180369123816490e-01); /* 3fe62e42 fee00000 */
+const LN2_LO: SoftF64 = f64!(1.90821492927058770002e-10); /* 3dea39ef 35793c76 */
+const LG1: SoftF64 = f64!(6.666666666666735130e-01); /* 3FE55555 55555593 */
+const LG2: SoftF64 = f64!(3.999999999940941908e-01); /* 3FD99999 9997FA04 */
+const LG3: SoftF64 = f64!(2.857142874366239149e-01); /* 3FD24924 94229359 */
+const LG4: SoftF64 = f64!(2.222219843214978396e-01); /* 3FCC71C5 1D8E78AF */
+const LG5: SoftF64 = f64!(1.818357216161805012e-01); /* 3FC74664 96CB03DE */
+const LG6: SoftF64 = f64!(1.531383769920937332e-01); /* 3FC39A09 D078C69F */
+const LG7: SoftF64 = f64!(1.479819860511658591e-01); /* 3FC2F112 DF3E5244 */
 
 pub(crate) const fn log(mut x: SoftF64) -> SoftF64 {
     let x1p54 = SoftF64::from_bits(0x4350000000000000); // 0x1p54 === 2 ^ 54
@@ -82,7 +82,7 @@ pub(crate) const fn log(mut x: SoftF64) -> SoftF64 {
     if (hx < 0x00100000) || ((hx >> 31) != 0) {
         /* x < 2**-126  */
         if ui << 1 == 0 {
-            return SoftF64(-1.).div(x.mul(x)); /* log(+-0)=-inf */
+            return f64!(-1.).div(x.mul(x)); /* log(+-0)=-inf */
         }
         if hx >> 31 != 0 {
             return (x.sub(x)).div(SoftF64::ZERO); /* log(-#) = NaN */
@@ -106,14 +106,14 @@ pub(crate) const fn log(mut x: SoftF64) -> SoftF64 {
     x = SoftF64::from_bits(ui);
 
     let f = x.sub(SoftF64::ONE);
-    let hfsq = SoftF64(0.5).mul(f).mul(f);
-    let s = f.div(SoftF64(2.0).add(f));
+    let hfsq = f64!(0.5).mul(f).mul(f);
+    let s = f.div(f64!(2.0).add(f));
     let z = s.mul(s);
     let w = z.mul(z);
     let t1 = w.mul(LG2.add(w.mul(LG4.add(w.mul(LG6)))));
     let t2 = z.mul(LG1.add(w.mul(LG3.add(w.mul(LG5.add(w.mul(LG7)))))));
     let r = t2.add(t1);
-    let dk = SoftF64(k as f64);
+    let dk = SoftF64::from_i32(k);
     s.mul(hfsq.add(r))
         .add(dk.mul(LN2_LO))
         .sub(hfsq)

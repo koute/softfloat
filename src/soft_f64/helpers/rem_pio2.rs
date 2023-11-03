@@ -16,28 +16,28 @@ use super::rem_pio2_large;
 
 // #if FLT_EVAL_METHOD==0 || FLT_EVAL_METHOD==1
 // #define EPS DBL_EPSILON
-const EPS: SoftF64 = SoftF64(2.2204460492503131e-16);
+const EPS: SoftF64 = f64!(2.2204460492503131e-16);
 // #elif FLT_EVAL_METHOD==2
 // #define EPS LDBL_EPSILON
 // #endif
 
 // TODO: Support FLT_EVAL_METHOD?
 
-const TO_INT: SoftF64 = SoftF64(1.5).div(EPS);
+const TO_INT: SoftF64 = f64!(1.5).div(EPS);
 /// 53 bits of 2/pi
-const INV_PIO2: SoftF64 = SoftF64(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
+const INV_PIO2: SoftF64 = f64!(6.36619772367581382433e-01); /* 0x3FE45F30, 0x6DC9C883 */
 /// first 33 bits of pi/2
-const PIO2_1: SoftF64 = SoftF64(1.57079632673412561417e+00); /* 0x3FF921FB, 0x54400000 */
+const PIO2_1: SoftF64 = f64!(1.57079632673412561417e+00); /* 0x3FF921FB, 0x54400000 */
 /// pi/2 - PIO2_1
-const PIO2_1T: SoftF64 = SoftF64(6.07710050650619224932e-11); /* 0x3DD0B461, 0x1A626331 */
+const PIO2_1T: SoftF64 = f64!(6.07710050650619224932e-11); /* 0x3DD0B461, 0x1A626331 */
 /// second 33 bits of pi/2
-const PIO2_2: SoftF64 = SoftF64(6.07710050630396597660e-11); /* 0x3DD0B461, 0x1A600000 */
+const PIO2_2: SoftF64 = f64!(6.07710050630396597660e-11); /* 0x3DD0B461, 0x1A600000 */
 /// pi/2 - (PIO2_1+PIO2_2)
-const PIO2_2T: SoftF64 = SoftF64(2.02226624879595063154e-21); /* 0x3BA3198A, 0x2E037073 */
+const PIO2_2T: SoftF64 = f64!(2.02226624879595063154e-21); /* 0x3BA3198A, 0x2E037073 */
 /// third 33 bits of pi/2
-const PIO2_3: SoftF64 = SoftF64(2.02226624871116645580e-21); /* 0x3BA3198A, 0x2E000000 */
+const PIO2_3: SoftF64 = f64!(2.02226624871116645580e-21); /* 0x3BA3198A, 0x2E000000 */
 /// pi/2 - (PIO2_1+PIO2_2+PIO2_3)
-const PIO2_3T: SoftF64 = SoftF64(8.47842766036889956997e-32); /* 0x397B839A, 0x252049C1 */
+const PIO2_3T: SoftF64 = f64!(8.47842766036889956997e-32); /* 0x397B839A, 0x252049C1 */
 
 // return the remainder of x rem pi/2 in y[0]+y[1]
 // use rem_pio2_large() for large x
@@ -51,11 +51,11 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
 
     const fn medium(x: SoftF64, ix: u32) -> (i32, SoftF64, SoftF64) {
         /* rint(x/(pi/2)), Assume round-to-nearest. */
-        let tmp = SoftF64(x.0 as f64).mul(INV_PIO2).add(TO_INT);
+        let tmp = x.mul(INV_PIO2).add(TO_INT);
         // force rounding of tmp to it's storage format on x87 to avoid
         // excess precision issues.
         let f_n = tmp.sub(TO_INT);
-        let n = f_n.0 as i32;
+        let n = f_n.to_i32();
         let mut r = x.sub(f_n.mul(PIO2_1));
         let mut w = f_n.mul(PIO2_1T); /* 1st round, good to 85 bits */
         let mut y0 = r.sub(w);
@@ -103,14 +103,14 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
                 return (-1, y0, y1);
             }
         } else if sign == 0 {
-            let z = x.sub(SoftF64(2.0).mul(PIO2_1));
-            let y0 = z.sub(SoftF64(2.0).mul(PIO2_1T));
-            let y1 = (z.sub(y0)).sub(SoftF64(2.0).mul(PIO2_1T));
+            let z = x.sub(f64!(2.0).mul(PIO2_1));
+            let y0 = z.sub(f64!(2.0).mul(PIO2_1T));
+            let y1 = (z.sub(y0)).sub(f64!(2.0).mul(PIO2_1T));
             return (2, y0, y1);
         } else {
-            let z = x.add(SoftF64(2.0).mul(PIO2_1));
-            let y0 = z.add(SoftF64(2.0).mul(PIO2_1T));
-            let y1 = (z.sub(y0)).add(SoftF64(2.0).mul(PIO2_1T));
+            let z = x.add(f64!(2.0).mul(PIO2_1));
+            let y0 = z.add(f64!(2.0).mul(PIO2_1T));
+            let y1 = (z.sub(y0)).add(f64!(2.0).mul(PIO2_1T));
             return (-2, y0, y1);
         }
     }
@@ -123,14 +123,14 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
                 return medium(x, ix);
             }
             if sign == 0 {
-                let z = x.sub(SoftF64(3.0).mul(PIO2_1));
-                let y0 = z.sub(SoftF64(3.0).mul(PIO2_1T));
-                let y1 = (z.sub(y0)).sub(SoftF64(3.0).mul(PIO2_1T));
+                let z = x.sub(f64!(3.0).mul(PIO2_1));
+                let y0 = z.sub(f64!(3.0).mul(PIO2_1T));
+                let y1 = (z.sub(y0)).sub(f64!(3.0).mul(PIO2_1T));
                 return (3, y0, y1);
             } else {
-                let z = x.add(SoftF64(3.0).mul(PIO2_1));
-                let y0 = z.add(SoftF64(3.0).mul(PIO2_1T));
-                let y1 = (z.sub(y0)).add(SoftF64(3.0).mul(PIO2_1T));
+                let z = x.add(f64!(3.0).mul(PIO2_1));
+                let y0 = z.add(f64!(3.0).mul(PIO2_1T));
+                let y1 = (z.sub(y0)).add(f64!(3.0).mul(PIO2_1T));
                 return (-3, y0, y1);
             }
         } else {
@@ -139,14 +139,14 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
                 return medium(x, ix);
             }
             if sign == 0 {
-                let z = x.sub(SoftF64(4.0).mul(PIO2_1));
-                let y0 = z.sub(SoftF64(4.0).mul(PIO2_1T));
-                let y1 = (z.sub(y0)).sub(SoftF64(4.0).mul(PIO2_1T));
+                let z = x.sub(f64!(4.0).mul(PIO2_1));
+                let y0 = z.sub(f64!(4.0).mul(PIO2_1T));
+                let y1 = (z.sub(y0)).sub(f64!(4.0).mul(PIO2_1T));
                 return (4, y0, y1);
             } else {
-                let z = x.add(SoftF64(4.0).mul(PIO2_1));
-                let y0 = z.add(SoftF64(4.0).mul(PIO2_1T));
-                let y1 = (z.sub(y0)).add(SoftF64(4.0).mul(PIO2_1T));
+                let z = x.add(f64!(4.0).mul(PIO2_1));
+                let y0 = z.add(f64!(4.0).mul(PIO2_1T));
+                let y1 = (z.sub(y0)).add(f64!(4.0).mul(PIO2_1T));
                 return (-4, y0, y1);
             }
         }
@@ -173,7 +173,7 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
     {
         let mut i = 0;
         while i < 2 {
-            tx[i] = SoftF64(z.0 as i32 as f64);
+            tx[i] = SoftF64::from_i32(z.to_i32());
             z = (z.sub(tx[i])).mul(x1p24);
             i += 1;
         }
@@ -199,43 +199,43 @@ pub(crate) const fn rem_pio2(x: SoftF64) -> (i32, SoftF64, SoftF64) {
 
 #[cfg(test)]
 mod tests {
-    use super::{rem_pio2, SoftF64};
+    use super::rem_pio2;
 
     #[test]
     fn test_near_pi() {
-        let arg = SoftF64(3.141592025756836);
+        let arg = f64!(3.141592025756836);
         let (a, b, c) = rem_pio2(arg);
         assert_eq!(
-            (a, b.0, c.0),
+            (a, b.to_native_f64(), c.to_native_f64()),
             (2, -6.278329573009626e-7, -2.1125998133974653e-23)
         );
-        let arg = SoftF64(3.141592033207416);
+        let arg = f64!(3.141592033207416);
         let (a, b, c) = rem_pio2(arg);
         assert_eq!(
-            (a, b.0, c.0),
+            (a, b.to_native_f64(), c.to_native_f64()),
             (2, -6.20382377148128e-7, -2.1125998133974653e-23)
         );
-        let arg = SoftF64(3.141592144966125);
+        let arg = f64!(3.141592144966125);
         let (a, b, c) = rem_pio2(arg);
         assert_eq!(
-            (a, b.0, c.0),
+            (a, b.to_native_f64(), c.to_native_f64()),
             (2, -5.086236681942706e-7, -2.1125998133974653e-23)
         );
-        let arg = SoftF64(3.141592979431152);
+        let arg = f64!(3.141592979431152);
         let (a, b, c) = rem_pio2(arg);
         assert_eq!(
-            (a, b.0, c.0),
+            (a, b.to_native_f64(), c.to_native_f64()),
             (2, 3.2584135866119817e-7, -2.1125998133974653e-23)
         );
     }
 
     #[test]
     fn test_overflow_b9b847() {
-        let _ = rem_pio2(SoftF64(-3054214.5490637687));
+        let _ = rem_pio2(f64!(-3054214.5490637687));
     }
 
     #[test]
     fn test_overflow_4747b9() {
-        let _ = rem_pio2(SoftF64(917340800458.2274));
+        let _ = rem_pio2(f64!(917340800458.2274));
     }
 }

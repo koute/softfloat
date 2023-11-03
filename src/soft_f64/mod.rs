@@ -1,3 +1,5 @@
+use crate::soft_f32::SoftF32;
+
 pub(crate) mod helpers;
 
 pub mod add;
@@ -24,25 +26,45 @@ pub use const_impl_trait as impl_trait;
 #[cfg(not(feature = "const_trait_impl"))]
 pub mod impl_trait;
 
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
-pub struct SoftF64(pub f64);
+struct Bits64(u64);
+
+#[derive(Default, Copy, Clone, Debug)]
+#[repr(transparent)]
+pub struct SoftF64(Bits64);
 
 impl SoftF64 {
-    pub const fn from_f64(a: f64) -> Self {
-        Self(a)
-    }
-
-    pub const fn to_f64(self) -> f64 {
-        self.0
-    }
-
-    pub const fn from_bits(a: u64) -> Self {
+    pub const fn from_native_f64(a: f64) -> Self {
         Self(unsafe { core::mem::transmute(a) })
     }
 
-    pub const fn to_bits(self) -> u64 {
+    pub const fn to_native_f64(self) -> f64 {
         unsafe { core::mem::transmute(self.0) }
+    }
+
+    pub const fn from_f32(a: SoftF32) -> Self {
+        a.to_f64()
+    }
+
+    pub const fn to_f32(self) -> SoftF32 {
+        SoftF32::from_f64(self)
+    }
+
+    pub const fn from_i32(a: i32) -> Self {
+        crate::conv::i32_to_f64(a)
+    }
+
+    pub const fn to_i32(self) -> i32 {
+        crate::conv::f64_to_i32(self)
+    }
+
+    pub const fn from_bits(a: u64) -> Self {
+        Self(Bits64(a))
+    }
+
+    pub const fn to_bits(self) -> u64 {
+        self.0 .0
     }
 
     pub const fn add(self, rhs: Self) -> Self {
@@ -122,6 +144,10 @@ impl SoftF64 {
     pub const fn ln(self) -> Self {
         log::log(self)
     }
+
+    pub const fn is_sign_negative(self) -> bool {
+        self.to_bits() & 0x8000_0000_0000_0000 != 0
+    }
 }
 
 type SelfInt = u64;
@@ -130,19 +156,19 @@ type SelfExpInt = i16;
 
 #[allow(unused)]
 impl SoftF64 {
-    const ZERO: Self = Self(0.0);
-    const ONE: Self = Self(1.0);
-    const BITS: u32 = 64;
-    const SIGNIFICAND_BITS: u32 = 52;
-    const EXPONENT_BITS: u32 = Self::BITS - Self::SIGNIFICAND_BITS - 1;
-    const EXPONENT_MAX: u32 = (1 << Self::EXPONENT_BITS) - 1;
-    const EXPONENT_BIAS: u32 = Self::EXPONENT_MAX >> 1;
-    const SIGN_MASK: SelfInt = 1 << (Self::BITS - 1);
-    const SIGNIFICAND_MASK: SelfInt = (1 << Self::SIGNIFICAND_BITS) - 1;
-    const IMPLICIT_BIT: SelfInt = 1 << Self::SIGNIFICAND_BITS;
-    const EXPONENT_MASK: SelfInt = !(Self::SIGN_MASK | Self::SIGNIFICAND_MASK);
+    const ZERO: Self = f64!(0.0);
+    const ONE: Self = f64!(1.0);
+    pub(crate) const BITS: u32 = 64;
+    pub(crate) const SIGNIFICAND_BITS: u32 = 52;
+    pub(crate) const EXPONENT_BITS: u32 = Self::BITS - Self::SIGNIFICAND_BITS - 1;
+    pub(crate) const EXPONENT_MAX: u32 = (1 << Self::EXPONENT_BITS) - 1;
+    pub(crate) const EXPONENT_BIAS: u32 = Self::EXPONENT_MAX >> 1;
+    pub(crate) const SIGN_MASK: SelfInt = 1 << (Self::BITS - 1);
+    pub(crate) const SIGNIFICAND_MASK: SelfInt = (1 << Self::SIGNIFICAND_BITS) - 1;
+    pub(crate) const IMPLICIT_BIT: SelfInt = 1 << Self::SIGNIFICAND_BITS;
+    pub(crate) const EXPONENT_MASK: SelfInt = !(Self::SIGN_MASK | Self::SIGNIFICAND_MASK);
 
-    const fn repr(self) -> SelfInt {
+    pub(crate) const fn repr(self) -> SelfInt {
         self.to_bits()
     }
     const fn signed_repr(self) -> SelfSignedInt {
@@ -160,7 +186,7 @@ impl SoftF64 {
     const fn imp_frac(self) -> SelfInt {
         self.frac() | Self::IMPLICIT_BIT
     }
-    const fn from_repr(a: SelfInt) -> Self {
+    pub(crate) const fn from_repr(a: SelfInt) -> Self {
         Self::from_bits(a)
     }
     const fn from_parts(sign: bool, exponent: SelfInt, significand: SelfInt) -> Self {

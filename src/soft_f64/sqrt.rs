@@ -84,7 +84,7 @@ use crate::soft_f64::{
 type F = SoftF64;
 
 pub(crate) const fn sqrt(x: F) -> F {
-    const TINY: F = SoftF64(1.0e-300);
+    const TINY: F = f64!(1.0e-300);
 
     let mut z: F;
     let sign: u32 = 0x80000000;
@@ -187,7 +187,7 @@ pub(crate) const fn sqrt(x: F) -> F {
 
     /* use floating add to find out rounding direction */
     if (ix0 as u32 | ix1) != 0 {
-        z = SoftF64(1.0).sub(TINY); /* raise inexact flag */
+        z = f64!(1.0).sub(TINY); /* raise inexact flag */
         if ge(z, SoftF64::ONE) {
             z = SoftF64::ONE.add(TINY);
             if q1 == 0xffffffff {
@@ -219,21 +219,21 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        const SQRT_100: SoftF64 = sqrt(SoftF64(100.0));
-        assert_eq!(SQRT_100.0, 10.0);
+        const SQRT_100: SoftF64 = sqrt(f64!(100.0));
+        assert_eq!(SQRT_100, f64!(10.0));
 
-        const SQRT_4: SoftF64 = sqrt(SoftF64(4.0));
-        assert_eq!(SQRT_4.0, 2.0);
+        const SQRT_4: SoftF64 = sqrt(f64!(4.0));
+        assert_eq!(SQRT_4, f64!(2.0));
     }
 
     /// The spec: https://en.cppreference.com/w/cpp/numeric/math/sqrt
     #[test]
     fn spec_tests() {
         // Not Asserted: FE_INVALID exception is raised if argument is negative.
-        assert!(sqrt(SoftF64(-1.0)).0.is_nan());
-        assert!(sqrt(SoftF64(f64::NAN)).0.is_nan());
+        assert!(sqrt(f64!(-1.0)).to_native_f64().is_nan());
+        assert!(sqrt(f64!(f64::NAN)).to_native_f64().is_nan());
         for f in [0.0, -0.0, f64::INFINITY].iter().copied() {
-            assert_eq!(sqrt(SoftF64(f)).0, f);
+            assert_eq!(sqrt(SoftF64::from_native_f64(f)).to_native_f64(), f);
         }
     }
 }

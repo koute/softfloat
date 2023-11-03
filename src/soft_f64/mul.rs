@@ -185,10 +185,8 @@ pub(crate) const fn mul(a: F, b: F) -> F {
 
 #[cfg(test)]
 mod test {
-    use crate::soft_f64::SoftF64;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF64(2.0).mul(SoftF64(2.0)).0, 4.0)
+        assert_eq!(f64!(2.0).mul(f64!(2.0)), f64!(4.0))
     }
 }

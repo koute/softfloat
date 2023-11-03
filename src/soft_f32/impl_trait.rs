@@ -4,7 +4,7 @@ type F = SoftF32;
 
 impl From<f32> for F {
     fn from(value: f32) -> Self {
-        F::from_f32(value)
+        F::from_native_f32(value)
     }
 }
 

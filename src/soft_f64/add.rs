@@ -184,10 +184,8 @@ pub(crate) const fn add(a: F, b: F) -> F {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF64(1.0).add(SoftF64(1.0)).0, 2.0)
+        assert_eq!(f64!(1.0).add(f64!(1.0)), f64!(2.0))
     }
 }

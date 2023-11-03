@@ -122,14 +122,14 @@ const IPIO2: [i32; 690] = [
 ];
 
 const PIO2: [SoftF64; 8] = [
-    SoftF64(1.57079625129699707031e+00), /* 0x3FF921FB, 0x40000000 */
-    SoftF64(7.54978941586159635335e-08), /* 0x3E74442D, 0x00000000 */
-    SoftF64(5.39030252995776476554e-15), /* 0x3CF84698, 0x80000000 */
-    SoftF64(3.28200341580791294123e-22), /* 0x3B78CC51, 0x60000000 */
-    SoftF64(1.27065575308067607349e-29), /* 0x39F01B83, 0x80000000 */
-    SoftF64(1.22933308981111328932e-36), /* 0x387A2520, 0x40000000 */
-    SoftF64(2.73370053816464559624e-44), /* 0x36E38222, 0x80000000 */
-    SoftF64(2.16741683877804819444e-51), /* 0x3569F31D, 0x00000000 */
+    f64!(1.57079625129699707031e+00), /* 0x3FF921FB, 0x40000000 */
+    f64!(7.54978941586159635335e-08), /* 0x3E74442D, 0x00000000 */
+    f64!(5.39030252995776476554e-15), /* 0x3CF84698, 0x80000000 */
+    f64!(3.28200341580791294123e-22), /* 0x3B78CC51, 0x60000000 */
+    f64!(1.27065575308067607349e-29), /* 0x39F01B83, 0x80000000 */
+    f64!(1.22933308981111328932e-36), /* 0x387A2520, 0x40000000 */
+    f64!(2.73370053816464559624e-44), /* 0x36E38222, 0x80000000 */
+    f64!(2.16741683877804819444e-51), /* 0x3569F31D, 0x00000000 */
 ];
 
 //
@@ -239,9 +239,9 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
     let mut n: i32;
     let mut ih: i32;
     let mut z: SoftF64;
-    let mut f: [SoftF64; 20] = [SoftF64(0.); 20];
-    let mut fq: [SoftF64; 20] = [SoftF64(0.); 20];
-    let mut q: [SoftF64; 20] = [SoftF64(0.); 20];
+    let mut f: [SoftF64; 20] = [f64!(0.); 20];
+    let mut fq: [SoftF64; 20] = [f64!(0.); 20];
+    let mut q: [SoftF64; 20] = [f64!(0.); 20];
     let mut iq: [i32; 20] = [0; 20];
 
     /* initialize jk*/
@@ -266,7 +266,7 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
             if j < 0 {
                 f[i] = SoftF64::ZERO;
             } else {
-                f[i] = SoftF64(IPIO2[j as usize] as f64);
+                f[i] = SoftF64::from_i32(IPIO2[j as usize]);
             }
             j += 1;
             i += 1;
@@ -297,8 +297,8 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
         {
             let mut j = jz;
             while j >= 1 {
-                fw = SoftF64((x1p_24.mul(z)).0 as i32 as f64);
-                iq[i as usize] = z.sub(x1p24.mul(fw)).0 as i32;
+                fw = SoftF64::from_i32((x1p_24.mul(z)).to_i32());
+                iq[i as usize] = z.sub(x1p24.mul(fw)).to_i32();
                 z = q[j - 1].add(fw);
                 i += 1;
                 j -= 1;
@@ -307,9 +307,9 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
 
         /* compute n */
         z = scalbn(z, q0); /* actual value of z */
-        z = z.sub(SoftF64(8.0).mul(z.mul(SoftF64(0.125)).floor())); /* trim off integer >= 8 */
-        n = z.0 as i32;
-        z = z.sub(SoftF64(n as f64));
+        z = z.sub(f64!(8.0).mul(z.mul(f64!(0.125)).floor())); /* trim off integer >= 8 */
+        n = z.to_i32();
+        z = z.sub(SoftF64::from_i32(n));
         ih = 0;
         if q0 > 0 {
             /* need iq[jz-1] to determine n */
@@ -319,7 +319,7 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
             ih = iq[jz - 1] >> (23 - q0);
         } else if q0 == 0 {
             ih = iq[jz - 1] >> 23;
-        } else if ge(z, SoftF64(0.5)) {
+        } else if ge(z, f64!(0.5)) {
             ih = 2;
         }
 
@@ -384,7 +384,7 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
                     let mut i = jz + 1;
                     while i <= jz + k {
                         /* add q[jz+1] to q[jz+k] */
-                        f[jx + i] = SoftF64(IPIO2[jv + i] as f64);
+                        f[jx + i] = SoftF64::from_i32(IPIO2[jv + i]);
                         fw = SoftF64::ZERO;
                         {
                             let mut j = 0;
@@ -418,13 +418,13 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
         /* break z into 24-bit if necessary */
         z = scalbn(z, -q0);
         if ge(z, x1p24) {
-            fw = SoftF64(x1p_24.mul(z).0 as i32 as f64);
-            iq[jz] = z.sub(x1p24.mul(fw)).0 as i32;
+            fw = SoftF64::from_i32(x1p_24.mul(z).to_i32());
+            iq[jz] = z.sub(x1p24.mul(fw)).to_i32();
             jz += 1;
             q0 += 24;
-            iq[jz] = fw.0 as i32;
+            iq[jz] = fw.to_i32();
         } else {
-            iq[jz] = z.0 as i32;
+            iq[jz] = z.to_i32();
         }
     }
 
@@ -433,7 +433,7 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
     {
         let mut i = jz;
         while i != usize::MAX {
-            q[i] = fw.mul(SoftF64(iq[i] as f64));
+            q[i] = fw.mul(SoftF64::from_i32(iq[i]));
             fw = fw.mul(x1p_24);
             i = i.wrapping_sub(1);
         }
@@ -477,7 +477,7 @@ pub(crate) const fn rem_pio2_large<const Y: usize>(
                 }
             }
             // TODO: drop excess precision here once double_t is used
-            fw = SoftF64(fw.0 as f64);
+            fw = SoftF64(fw.0);
             y[0] = if ih == 0 { fw } else { fw.neg() };
 
             fw = fq[0].sub(fw);

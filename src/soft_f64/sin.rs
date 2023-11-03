@@ -87,12 +87,15 @@ mod test {
     fn test_near_pi() {
         let x = SoftF64::from_bits(0x400921fb000FD5DD); // 3.141592026217707
         let sx = SoftF64::from_bits(0x3ea50d15ced1a4a2); // 6.273720864039205e-7
-        let result = x.sin().0;
-        assert_eq!(result, sx.0);
+        let result = x.sin();
+        assert_eq!(result, sx);
     }
 
     #[test]
     fn test_large_neg() {
-        assert_eq!(SoftF64(-1647101.0).sin().to_f64(), (-1647101.0_f64).sin())
+        assert_eq!(
+            f64!(-1647101.0).sin().to_native_f64(),
+            (-1647101.0_f64).sin()
+        )
     }
 }

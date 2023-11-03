@@ -3,7 +3,7 @@ use super::{
     SoftF64,
 };
 
-const TOINT: SoftF64 = SoftF64(1.0).div(SoftF64(f64::EPSILON));
+const TOINT: SoftF64 = f64!(1.0).div(f64!(f64::EPSILON));
 
 /// Floor (f64)
 ///
@@ -24,7 +24,7 @@ pub const fn floor(x: SoftF64) -> SoftF64 {
     /* special case because of non-nearest rounding modes */
     if e < 0x3ff {
         return if (ui >> 63) != 0 {
-            SoftF64(-1.0)
+            f64!(-1.0)
         } else {
             SoftF64::ZERO
         };
@@ -42,20 +42,20 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        assert_eq!(floor(SoftF64(1.1)).0, 1.0);
-        assert_eq!(floor(SoftF64(2.9)).0, 2.0);
+        assert_eq!(floor(f64!(1.1)), f64!(1.0));
+        assert_eq!(floor(f64!(2.9)), f64!(2.0));
     }
 
     /// The spec: https://en.cppreference.com/w/cpp/numeric/math/floor
     #[test]
     fn spec_tests() {
         // Not Asserted: that the current rounding mode has no effect.
-        assert!(floor(SoftF64(f64::NAN)).0.is_nan());
+        assert!(floor(f64!(f64::NAN)).to_native_f64().is_nan());
         for f in [0.0, -0.0, f64::INFINITY, f64::NEG_INFINITY]
             .iter()
             .copied()
         {
-            assert_eq!(floor(SoftF64(f)).0, f);
+            assert_eq!(floor(SoftF64::from_native_f64(f)).to_native_f64(), f);
         }
     }
 }

@@ -8,7 +8,7 @@ use crate::soft_f32::SoftF32;
 use core::cmp::Ordering;
 
 pub(crate) const fn sqrtf(x: SoftF32) -> SoftF32 {
-    const TINY: SoftF32 = SoftF32(1.0e-30);
+    const TINY: SoftF32 = f32!(1.0e-30);
 
     let mut z: SoftF32;
     let sign: i32 = 0x80000000_u32 as i32;
@@ -75,10 +75,10 @@ pub(crate) const fn sqrtf(x: SoftF32) -> SoftF32 {
 
     /* use floating add to find out rounding direction */
     if ix != 0 {
-        z = SoftF32(1.0).sub(TINY); /* raise inexact flag */
-        if ge(z, 1.0) {
-            z = SoftF32(1.0).add(TINY);
-            if gt(z, 1.0) {
+        z = f32!(1.0).sub(TINY); /* raise inexact flag */
+        if ge(z, f32!(1.0)) {
+            z = f32!(1.0).add(TINY);
+            if gt(z, f32!(1.0)) {
                 q += 2;
             } else {
                 q += q & 1;
@@ -91,8 +91,8 @@ pub(crate) const fn sqrtf(x: SoftF32) -> SoftF32 {
     SoftF32::from_bits(ix as u32)
 }
 
-const fn gt(l: SoftF32, r: f32) -> bool {
-    if let Some(ord) = l.cmp(SoftF32(r)) {
+const fn gt(l: SoftF32, r: SoftF32) -> bool {
+    if let Some(ord) = l.cmp(r) {
         match ord {
             Ordering::Greater => true,
             _ => false,
@@ -102,8 +102,8 @@ const fn gt(l: SoftF32, r: f32) -> bool {
     }
 }
 
-const fn ge(l: SoftF32, r: f32) -> bool {
-    if let Some(ord) = l.cmp(SoftF32(r)) {
+const fn ge(l: SoftF32, r: SoftF32) -> bool {
+    if let Some(ord) = l.cmp(r) {
         match ord {
             Ordering::Less => false,
             _ => true,
@@ -120,18 +120,18 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        assert_eq!(sqrtf(SoftF32(100.0)).0, 10.0);
-        assert_eq!(sqrtf(SoftF32(4.0)).0, 2.0);
+        assert_eq!(sqrtf(f32!(100.0)), f32!(10.0));
+        assert_eq!(sqrtf(f32!(4.0)), f32!(2.0));
     }
 
     /// The spec: https://en.cppreference.com/w/cpp/numeric/math/sqrt
     #[test]
     fn spec_tests() {
         // Not Asserted: FE_INVALID exception is raised if argument is negative.
-        assert!(sqrtf(SoftF32(-1.0)).0.is_nan());
-        assert!(sqrtf(SoftF32(NAN)).0.is_nan());
+        assert!(sqrtf(f32!(-1.0)).to_native_f32().is_nan());
+        assert!(sqrtf(f32!(NAN)).to_native_f32().is_nan());
         for f in [0.0, -0.0, INFINITY].iter().copied() {
-            assert_eq!(sqrtf(SoftF32(f)).0, f);
+            assert_eq!(sqrtf(SoftF32::from_native_f32(f)).to_native_f32(), f);
         }
     }
 }

@@ -430,10 +430,8 @@ pub(crate) const fn div(a: F, b: F) -> F {
 
 #[cfg(test)]
 mod test {
-    use super::SoftF64;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF64(10.0).div(SoftF64(5.0)).0, 2.0)
+        assert_eq!(f64!(10.0).div(f64!(5.0)), f64!(2.0))
     }
 }

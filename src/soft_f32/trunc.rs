@@ -21,10 +21,8 @@ pub(crate) const fn trunc(x: SoftF32) -> SoftF32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::soft_f32::SoftF32;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(super::trunc(SoftF32(1.1)).0, 1.0);
+        assert_eq!(super::trunc(f32!(1.1)), f32!(1.0));
     }
 }

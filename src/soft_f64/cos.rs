@@ -53,7 +53,7 @@ pub(crate) const fn cos(x: SoftF64) -> SoftF64 {
         if ix < 0x3e46a09e {
             /* if x < 2**-27 * sqrt(2) */
             /* raise inexact if x != 0 */
-            if x.0 as i32 == 0 {
+            if x.to_i32() == 0 {
                 return SoftF64::ONE;
             }
         }
@@ -77,10 +77,11 @@ pub(crate) const fn cos(x: SoftF64) -> SoftF64 {
 
 #[cfg(test)]
 mod test {
-    use crate::soft_f64::SoftF64;
-
     #[test]
     fn test_large_neg() {
-        assert_eq!(SoftF64(-1647101.0).cos().to_f64(), (-1647101.0_f64).cos())
+        assert_eq!(
+            f64!(-1647101.0).cos().to_native_f64(),
+            (-1647101.0_f64).cos()
+        )
     }
 }

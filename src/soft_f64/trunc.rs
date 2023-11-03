@@ -20,10 +20,8 @@ pub(crate) const fn trunc(x: SoftF64) -> SoftF64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::soft_f64::SoftF64;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(super::trunc(SoftF64(1.1)).0, 1.0);
+        assert_eq!(super::trunc(f64!(1.1)), f64!(1.0));
     }
 }

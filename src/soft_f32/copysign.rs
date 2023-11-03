@@ -14,10 +14,8 @@ pub(crate) const fn copysign(x: SoftF32, y: SoftF32) -> SoftF32 {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     #[test]
     fn sanity_check() {
-        assert_eq!(SoftF32(1.0).copysign(SoftF32(-0.0)).0, -1.0)
+        assert_eq!(f32!(1.0).copysign(f32!(-0.0)), f32!(-1.0))
     }
 }

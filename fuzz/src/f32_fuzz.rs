@@ -85,13 +85,13 @@ mod basic_tests {
         let mut rng = nanorand::WyRand::new();
         for i in i32::MIN..i32::MAX {
             let fl = SoftF32::from_bits(rng.generate::<u32>());
-            let res1 = fl.powi(i).0;
-            let res2 = crate::compiler_builtins::powif(fl.0, i);
+            let res1 = fl.powi(i).to_native_f32();
+            let res2 = crate::compiler_builtins::powif(fl.to_native_f32(), i);
             if !match (res1, res2) {
                 (a, b) if a.is_nan() && b.is_nan() => true,
                 (a, b) => a == b,
             } {
-                eprintln!("failed: base = {}, pow = {}", fl.0, i);
+                eprintln!("failed: base = {}, pow = {}", fl.to_native_f32(), i);
                 eprintln!("res: soft = {}, ref = {}", res1, res2);
                 panic!()
             }

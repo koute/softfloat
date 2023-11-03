@@ -12,12 +12,12 @@
 
 use crate::soft_f64::SoftF64;
 
-const C1: SoftF64 = SoftF64(4.16666666666666019037e-02); /* 0x3FA55555, 0x5555554C */
-const C2: SoftF64 = SoftF64(-1.38888888888741095749e-03); /* 0xBF56C16C, 0x16C15177 */
-const C3: SoftF64 = SoftF64(2.48015872894767294178e-05); /* 0x3EFA01A0, 0x19CB1590 */
-const C4: SoftF64 = SoftF64(-2.75573143513906633035e-07); /* 0xBE927E4F, 0x809C52AD */
-const C5: SoftF64 = SoftF64(2.08757232129817482790e-09); /* 0x3E21EE9E, 0xBDB4B1C4 */
-const C6: SoftF64 = SoftF64(-1.13596475577881948265e-11); /* 0xBDA8FAE9, 0xBE8838D4 */
+const C1: SoftF64 = f64!(4.16666666666666019037e-02); /* 0x3FA55555, 0x5555554C */
+const C2: SoftF64 = f64!(-1.38888888888741095749e-03); /* 0xBF56C16C, 0x16C15177 */
+const C3: SoftF64 = f64!(2.48015872894767294178e-05); /* 0x3EFA01A0, 0x19CB1590 */
+const C4: SoftF64 = f64!(-2.75573143513906633035e-07); /* 0xBE927E4F, 0x809C52AD */
+const C5: SoftF64 = f64!(2.08757232129817482790e-09); /* 0x3E21EE9E, 0xBDB4B1C4 */
+const C6: SoftF64 = f64!(-1.13596475577881948265e-11); /* 0xBDA8FAE9, 0xBE8838D4 */
 
 // kernel cos function on [-pi/4, pi/4], pi/4 ~ 0.785398164
 // Input x is assumed to be bounded by ~pi/4 in magnitude.
@@ -60,7 +60,7 @@ pub(crate) const fn k_cos(x: SoftF64, y: SoftF64) -> SoftF64 {
     let r = z
         .mul(C1.add(z.mul(C2.add(z.mul(C3)))))
         .add(w.mul(w.mul(C4.add(z.mul(C5.add(z.mul(C6)))))));
-    let hz = SoftF64(0.5).mul(z);
+    let hz = f64!(0.5).mul(z);
     let w = SoftF64::ZERO.sub(hz);
     w.add(((SoftF64::ONE.sub(w)).sub(hz)).add(z.mul(r).sub(x.mul(y))))
 }

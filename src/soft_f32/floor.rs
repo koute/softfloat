@@ -25,7 +25,7 @@ pub const fn floor(x: SoftF32) -> SoftF32 {
         if ui >> 31 == 0 {
             ui = 0;
         } else if ui << 1 != 0 {
-            return SoftF32(-1.0);
+            return f32!(-1.0);
         }
     }
     SoftF32::from_bits(ui)
@@ -37,21 +37,24 @@ mod tests {
 
     #[test]
     fn sanity_check() {
-        assert_eq!(floor(SoftF32(0.5)).0, 0.0);
-        assert_eq!(floor(SoftF32(1.1)).0, 1.0);
-        assert_eq!(floor(SoftF32(2.9)).0, 2.0);
+        assert_eq!(floor(f32!(0.5)), f32!(0.0));
+        assert_eq!(floor(f32!(1.1)), f32!(1.0));
+        assert_eq!(floor(f32!(2.9)), f32!(2.0));
     }
 
     /// The spec: https://en.cppreference.com/w/cpp/numeric/math/floor
     #[test]
     fn spec_tests() {
         // Not Asserted: that the current rounding mode has no effect.
-        assert!(floor(SoftF32(f32::NAN)).0.is_nan());
+        assert!(floor(f32!(f32::NAN)).to_native_f32().is_nan());
         for f in [0.0, -0.0, f32::INFINITY, f32::NEG_INFINITY]
             .iter()
             .copied()
         {
-            assert_eq!(SoftF32(f).floor().0, f);
+            assert_eq!(
+                SoftF32::from_native_f32(f).floor(),
+                SoftF32::from_native_f32(f)
+            );
         }
     }
 }

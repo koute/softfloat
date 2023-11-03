@@ -4,7 +4,7 @@ type F = SoftF64;
 
 impl From<f64> for F {
     fn from(value: f64) -> Self {
-        F::from_f64(value)
+        F::from_native_f64(value)
     }
 }
 
