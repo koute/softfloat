@@ -4,13 +4,13 @@ members = [
 ]
 
 [package]
-name = "const_soft_float"
-version = "0.1.4"
+name = "softfloat"
+version = "1.0.0"
 edition = "2021"
-description = "Const Soft Float Point"
-keywords = ["const", "soft", "float-point"]
+description = "Pure software floating-point implementation, with `const` and `no_std` support"
+keywords = ["const", "soft", "softfloat", "float-point"]
 categories = ["no-std"]
-repository = "https://github.com/823984418/const_soft_float"
+repository = "https://github.com/koute/softfloat"
 license = "MIT OR Apache-2.0"
 
 [dependencies]

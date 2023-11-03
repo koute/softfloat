@@ -4,7 +4,7 @@ mod f32_fuzz;
 mod f64_fuzz;
 
 #[macro_use]
-extern crate const_soft_float;
+extern crate softfloat;
 
 pub enum Argument {
     First,
@@ -15,7 +15,7 @@ mod sf32 {
     use super::Argument;
     use std::fmt::Display;
 
-    use const_soft_float::SoftF32;
+    use softfloat::SoftF32;
 
     fn is_eq_eps(a: f32, b: f32, eps: Option<f32>) -> bool {
         match eps {
@@ -201,7 +201,7 @@ mod sf32 {
 mod sf64 {
     use std::fmt::Display;
 
-    use const_soft_float::SoftF64;
+    use softfloat::SoftF64;
 
     use crate::Argument;
 

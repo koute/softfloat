@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use crate::sf64::{fuzz_test_op, fuzz_test_op_2, fuzz_test_op_2_other};
-use const_soft_float::SoftF64;
+use softfloat::SoftF64;
 
 mod basic_tests {
     use super::*;

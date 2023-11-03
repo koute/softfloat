@@ -1,8 +1,8 @@
 #![cfg(test)]
 
 use crate::sf32::{fuzz_test_op, fuzz_test_op_2, fuzz_test_op_2_other};
-use const_soft_float::SoftF32;
 use nanorand::Rng;
+use softfloat::SoftF32;
 
 mod basic_tests {
     use super::*;
