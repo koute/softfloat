@@ -15,8 +15,6 @@ pub mod sin;
 pub mod sqrt;
 pub mod trunc;
 
-pub mod impl_trait;
-
 #[derive(Default, Copy, Clone, Debug)]
 #[repr(transparent)]
 struct Bits32(u32);

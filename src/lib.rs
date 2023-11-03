@@ -35,6 +35,78 @@ const fn abs_diff(a: i32, b: i32) -> u32 {
     a.wrapping_sub(b).wrapping_abs() as u32
 }
 
+macro_rules! impl_traits {
+    ($ty:ty, $native_ty:ty, $from_native:ident) => {
+        impl From<$native_ty> for $ty {
+            fn from(value: $native_ty) -> Self {
+                Self::$from_native(value)
+            }
+        }
+
+        impl PartialEq<Self> for $ty {
+            fn eq(&self, other: &Self) -> bool {
+                match self.cmp(*other) {
+                    Some(core::cmp::Ordering::Equal) => true,
+                    _ => false,
+                }
+            }
+        }
+
+        impl PartialOrd for $ty {
+            fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+                self.cmp(*other)
+            }
+        }
+
+        impl core::ops::Add for $ty {
+            type Output = Self;
+
+            fn add(self, rhs: Self) -> Self::Output {
+                Self::add(self, rhs)
+            }
+        }
+
+        impl core::ops::Sub for $ty {
+            type Output = Self;
+
+            fn sub(self, rhs: Self) -> Self::Output {
+                Self::sub(self, rhs)
+            }
+        }
+
+        impl core::ops::Mul for $ty {
+            type Output = Self;
+
+            fn mul(self, rhs: Self) -> Self::Output {
+                Self::mul(self, rhs)
+            }
+        }
+
+        impl core::ops::Div for $ty {
+            type Output = Self;
+
+            fn div(self, rhs: Self) -> Self::Output {
+                Self::div(self, rhs)
+            }
+        }
+
+        impl core::ops::AddAssign for $ty {
+            fn add_assign(&mut self, rhs: Self) {
+                *self = *self + rhs;
+            }
+        }
+
+        impl core::ops::SubAssign for $ty {
+            fn sub_assign(&mut self, rhs: Self) {
+                *self = *self - rhs;
+            }
+        }
+    };
+}
+
+impl_traits!(crate::soft_f32::SoftF32, f32, from_native_f32);
+impl_traits!(crate::soft_f64::SoftF64, f64, from_native_f64);
+
 #[cfg(test)]
 mod tests {
     use crate::soft_f32::SoftF32;
